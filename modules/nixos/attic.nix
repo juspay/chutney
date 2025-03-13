@@ -17,7 +17,7 @@ in
       # TODO: atticd.service must wait until postgresql.service is active
       database.url = "postgresql://${config.services.atticd.user}?host=/run/postgresql/";
 
-      api-endpoint = "https://${domain}/";
+      api-endpoint = "http://${domain}/";
       allowed-hosts = [
         domain
       ];
