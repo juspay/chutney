@@ -11,5 +11,12 @@
         ./modules/nixos
       ];
     };
+    checks.x86_64-linux =
+      let
+        pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+      in
+      {
+        integration = pkgs.testers.runNixOSTest ./tests/integration.nix;
+      };
   };
 }
