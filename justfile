@@ -17,6 +17,10 @@ apply:
   just init
   terraform apply
 
+# Get the public IP of the EC2 (Assumes `just apply` has been run)
+get-ip:
+  terraform output -raw chutney_public_ip
+
 # Run `terraform destroy` and delete `terraform.tfstate*`
 destroy:
   terraform destroy

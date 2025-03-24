@@ -78,6 +78,8 @@ in
       Terraform = "true";
     };
   };
+
+  output."chutney_public_ip".value = "\${aws_instance.chutney.public_ip}";
   
   # Create S3 bucket used for both uploading custom AMI and as storage backend for the cache
   # resource.aws_s3_bucket."chutney" = {
