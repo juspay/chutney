@@ -6,6 +6,8 @@
     terranix = {
       url = "github:terranix/terranix";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.systems.follows = "systems";
     };
   };
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
@@ -17,7 +19,7 @@
         ./modules/nixos
       ];
     };
-    systems = [ "x86_64-linux" "aarch64-linux" ];
+    systems = import inputs.systems;
     perSystem = { pkgs, system, ... }: {
       _module.args.pkgs = import inputs.nixpkgs {
         inherit system;
