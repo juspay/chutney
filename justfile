@@ -23,6 +23,7 @@ get-ip:
 
 # Run `terraform destroy` and delete `terraform.tfstate*`
 destroy:
+  just init
   terraform destroy
   rm terraform.tfstate*
   
