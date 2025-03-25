@@ -1,6 +1,15 @@
 { flake, config, lib, ... }:
 let
   inherit (flake) inputs;
+  # Credit: https://github.com/input-output-hk/cardano-monitoring/blob/065c923c1fb54f8bb6056ded67c4273a7f58c8d9/flake/opentofu/cluster.nix#L32-L39
+  mkSecurityGroupRule = lib.recursiveUpdate {
+    protocol = "tcp";
+    cidr_blocks = ["0.0.0.0/0"];
+    ipv6_cidr_blocks = ["::/0"];
+    prefix_list_ids = [];
+    security_groups = [];
+    self = true;
+  };
 in
 {
 
@@ -25,34 +34,30 @@ in
   resource.aws_security_group.chutney_ssh = {
     name = "allow ssh";
     vpc_id = "\${aws_vpc.chutney.id}";
-    ingress = [
+    ingress = map mkSecurityGroupRule [
       {
-        protocol = "tcp";
+        description = "Allow HTTP";
+        from_port = 80;
+        to_port = 80;
+      }
+      {
+        description = "Allow HTTPS";
+        from_port = 443;
+        to_port = 443;
+      }
+      {
+        description = "Allow SSH";
         from_port = 22;
         to_port = 22;
-        cidr_blocks = [ "0.0.0.0/0" ];
-
-        # required attributes; `terraform plan` fails without them
-        description = "";
-        ipv6_cidr_blocks = [ ];
-        prefix_list_ids = [ ];
-        security_groups = [ ];
-        self = false;
       }
     ];
-    egress = [
-      {
-        protocol = "tcp";
-        from_port = 0;
-        to_port = 65535;
-        cidr_blocks = [ "0.0.0.0/0" ];
 
-        # required attributes; `terraform plan` fails without them
-        description = "";
-        ipv6_cidr_blocks = [ ];
-        prefix_list_ids = [ ];
-        security_groups = [ ];
-        self = false;
+    egress = map mkSecurityGroupRule [
+      {
+        description = "Allow outbound traffic";
+        from_port = 0;
+        to_port = 0;
+        protocol = "-1";
       }
     ];
   };
