@@ -18,7 +18,7 @@ in
     vpc_id = "\${aws_vpc.chutney.id}";
     cidr_block = "10.0.1.0/24";
   };
-  resource.aws_route_table_association.chutney_route =  {
+  resource.aws_route_table_association.chutney_route = {
     subnet_id = "\${aws_subnet.chutney.id}";
     route_table_id = "\${aws_route_table.chutney_vpc_rt.id}";
   };
@@ -26,30 +26,32 @@ in
     name = "allow ssh";
     vpc_id = "\${aws_vpc.chutney.id}";
     ingress = [
-      { protocol = "tcp";
+      {
+        protocol = "tcp";
         from_port = 22;
         to_port = 22;
         cidr_blocks = [ "0.0.0.0/0" ];
 
         # required attributes; `terraform plan` fails without them
         description = "";
-        ipv6_cidr_blocks = [];
-        prefix_list_ids = [];
-        security_groups = [];
+        ipv6_cidr_blocks = [ ];
+        prefix_list_ids = [ ];
+        security_groups = [ ];
         self = false;
       }
     ];
     egress = [
-      { protocol = "tcp";
+      {
+        protocol = "tcp";
         from_port = 0;
         to_port = 65535;
         cidr_blocks = [ "0.0.0.0/0" ];
 
         # required attributes; `terraform plan` fails without them
         description = "";
-        ipv6_cidr_blocks = [];
-        prefix_list_ids = [];
-        security_groups = [];
+        ipv6_cidr_blocks = [ ];
+        prefix_list_ids = [ ];
+        security_groups = [ ];
         self = false;
       }
     ];
@@ -71,6 +73,7 @@ in
     subnet_id = "\${aws_subnet.chutney.id}";
     associate_public_ip_address = true;
     key_name = config.resource.aws_key_pair.deployer.key_name;
+    iam_instance_profile = "\${aws_iam_instance_profile.chutney_profile.id}";
 
     tags = {
       Name = "chutney-attic-server";
@@ -79,15 +82,57 @@ in
     };
   };
 
-  output."chutney_public_ip".value = "\${aws_instance.chutney.public_ip}";
-  
   # Create S3 bucket used for both uploading custom AMI and as storage backend for the cache
-  # resource.aws_s3_bucket."chutney" = {
-  #   bucket = "chutney-tf-prod-${config.provider.aws.region}"; 
-  #   tags = {
-  #     Name = "chutney-tf-prod-${config.provider.aws.region}";
-  #     Environment = "prod";
-  #   };
-  # };
+  resource.aws_s3_bucket."chutney" = {
+    bucket = "chutney-attic-cache";
+    # Destroy bucket despite it not being empty
+    force_destroy = true;
+    tags = {
+      Name = "chutney-attic-cache";
+    };
+  };
+
+  resource.aws_iam_instance_profile.chutney_profile = {
+    role = "\${aws_iam_role.chutney_ec2_role.name}";
+  };
+
+  resource.aws_iam_role.chutney_ec2_role = {
+    name = "chutney-ec2-role";
+    assume_role_policy = builtins.toJSON {
+      Version = "2012-10-17";
+      Statement = [
+        {
+          Action = "sts:AssumeRole";
+          Effect = "Allow";
+          Principal.Service = "ec2.amazonaws.com";
+        }
+      ];
+    };
+  };
+
+  resource.aws_s3_bucket_policy.allow_chutney = {
+    bucket = "\${aws_s3_bucket.chutney.id}";
+    policy = "\${data.aws_iam_policy_document.allow_chutney.json}";
+  };
+
+  data.aws_iam_policy_document.allow_chutney = {
+    statement = {
+      principals = {
+        type = "AWS";
+        identifiers = [ "\${aws_iam_role.chutney_ec2_role.arn}" ];
+      };
+
+      actions = [ "s3:*" ];
+
+      resources = [
+        "\${aws_s3_bucket.chutney.arn}"
+        "\${aws_s3_bucket.chutney.arn}/*"
+      ];
+    };
+  };
+
+
+  output."chutney_public_ip".value = "\${aws_instance.chutney.public_ip}";
+
 
 }
