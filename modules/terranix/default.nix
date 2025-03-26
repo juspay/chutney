@@ -4,10 +4,10 @@ let
   # Credit: https://github.com/input-output-hk/cardano-monitoring/blob/065c923c1fb54f8bb6056ded67c4273a7f58c8d9/flake/opentofu/cluster.nix#L32-L39
   mkSecurityGroupRule = lib.recursiveUpdate {
     protocol = "tcp";
-    cidr_blocks = ["0.0.0.0/0"];
-    ipv6_cidr_blocks = ["::/0"];
-    prefix_list_ids = [];
-    security_groups = [];
+    cidr_blocks = [ "0.0.0.0/0" ];
+    ipv6_cidr_blocks = [ "::/0" ];
+    prefix_list_ids = [ ];
+    security_groups = [ ];
     self = true;
   };
   node = inputs.self.nixosConfigurations.chutney;
@@ -71,17 +71,17 @@ in
 
   # Credit: https://nixos.github.io/amis/
   data.aws_ami.nixos_arm64 = {
-    owners      = ["427812963091"];
+    owners = [ "427812963091" ];
     most_recent = true;
 
     filter = [
       {
-        name   = "name";
-        values = ["nixos/${node.config.system.stateVersion}*"];
+        name = "name";
+        values = [ "nixos/${node.config.system.stateVersion}*" ];
       }
       {
-        name   = "architecture";
-        values = ["arm64"];
+        name = "architecture";
+        values = [ "arm64" ];
       }
     ];
   };
@@ -96,10 +96,16 @@ in
     key_name = config.resource.aws_key_pair.deployer.key_name;
     iam_instance_profile = "\${aws_iam_instance_profile.chutney_profile.id}";
     root_block_device = {
-      volume_size = 50;
+      volume_size = 50; # In GB
       volume_type = "gp3";
       iops = 3000;
       delete_on_termination = true;
+    };
+
+    # Configure options for IMDS
+    metadata_options = {
+      # attic, at the time of testing, wasn't working with IMDSv2
+      http_tokens = "optional"; # Allow both IMDSv1 and IMDSv2
     };
 
     tags = {
