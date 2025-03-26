@@ -10,6 +10,7 @@ let
     security_groups = [];
     self = true;
   };
+  node = inputs.self.nixosConfigurations.chutney;
 in
 {
 
@@ -65,14 +66,29 @@ in
   # provide ssh key
   resource.aws_key_pair.deployer = {
     key_name = "deployer-pub-key";
-    public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOZaSBdDB7D4ceQgghss2xrI7MEwFyN2tRMkgkUTBOg8";
+    public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFN5Ov2zDIG59/DaYKjT0sMWIY15er1DZCT9SIak07vK";
+  };
+
+  # Credit: https://nixos.github.io/amis/
+  data.aws_ami.nixos_arm64 = {
+    owners      = ["427812963091"];
+    most_recent = true;
+
+    filter = [
+      {
+        name   = "name";
+        values = ["nixos/${node.config.system.stateVersion}*"];
+      }
+      {
+        name   = "architecture";
+        values = ["arm64"];
+      }
+    ];
   };
 
   # create machine
   resource.aws_instance.chutney = {
-    # Picked the nixos/24.11 arm64 instance from https://nixos.github.io/amis/ after selecting "ap-south-1" region in the first column.
-    # TODO: automatate (see https://github.com/terranix/terranix-examples/blob/921680efb8af0f332d8ad73718d53907f9483e24/aws-nixos-server/config.nix#L23)
-    ami = "ami-093e0b67d6bb0bfae";
+    ami = "\${data.aws_ami.nixos_arm64.id}";
     instance_type = "t4g.micro";
     vpc_security_group_ids = [ "\${aws_security_group.chutney_ssh.id}" ];
     subnet_id = "\${aws_subnet.chutney.id}";
