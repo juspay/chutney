@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 let
   # Temporary public IPv4
-  domain = "13.235.158.155";
+  domain = "52.66.226.2";
   port = 8080;
 in
 {
@@ -18,15 +18,13 @@ in
       database.url = "postgresql://${config.services.atticd.user}?host=/run/postgresql/";
 
       api-endpoint = "http://${domain}/";
-      allowed-hosts = [
-        domain
-      ];
 
       storage = {
         type = "s3";
         region = "ap-south-1";
-        bucket = "juspay-attic";
-        endpoint = "https://juspay-attic.s3.amazonaws.com/";
+        # TODO: autowire from terranix config
+        bucket = "chutney-attic-cache";
+        endpoint = "https://chutney-attic-cache.s3.amazonaws.com/";
       };
 
       compression.type = "zstd";
@@ -95,6 +93,7 @@ in
   environment.systemPackages = [
     # Needed for creating root-token using `atticd-atticadm`
     config.services.atticd.package
+    pkgs.awscli2
   ];
 
   # For testing only - Replace with secrets management
