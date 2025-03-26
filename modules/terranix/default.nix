@@ -95,6 +95,12 @@ in
     associate_public_ip_address = true;
     key_name = config.resource.aws_key_pair.deployer.key_name;
     iam_instance_profile = "\${aws_iam_instance_profile.chutney_profile.id}";
+    root_block_device = {
+      volume_size = 50;
+      volume_type = "gp3";
+      iops = 3000;
+      delete_on_termination = true;
+    };
 
     tags = {
       Name = "chutney-attic-server";
