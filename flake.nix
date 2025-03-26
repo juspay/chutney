@@ -33,10 +33,10 @@
         };
         modules = [ ./modules/terranix ];
       };
-      apps.delete-non-default-sg = {
+      apps.vpc-sg-cleanup = {
         type = "app";
         program = pkgs.writeShellApplication {
-          name = "delete-non-default-sg";
+          name = "vpc-sg-cleanup";
           runtimeInputs = [ pkgs.awscli2 ];
           text = ''
             SG_IDS=$(aws ec2 describe-security-groups \
@@ -50,10 +50,10 @@
             done
           '';
           meta.description = ''
-            Manually delete the non-default security-group from chutney's VPC.
+            Manually delete the non-default security-group from a given VPC.
 
             `terraform destroy` only deletes the SG's managed by it. There can be other non-default SG's without
-            deleting which the VPC will not get destroyed.
+            deleting which the VPC will not be destroyed.
           '';
         };
       };
