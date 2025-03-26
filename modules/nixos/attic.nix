@@ -83,6 +83,7 @@ in
     recommendedZstdSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
+    clientMaxBodySize = "0"; # Remove size restrictions
     virtualHosts.${domain} = {
       # enableACME = true;
       # forceSSL = true;
