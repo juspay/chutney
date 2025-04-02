@@ -116,12 +116,16 @@ in
   };
 
 
-  # Generate a public IP and associate it with the instance
+  # Generate a public IP
+  #
+  # Note: We aren't using `associate_public_ip_address = true;` in `aws_instance` because that will generate a new
+  # IP when a new instance is created.
   resource.aws_eip."chutney_ip" = { };
 
   # Associate the IP with the instance.
-  # Techinically `resource.eip` can mention `instance` in its configuration to associate but
-  # that would mean eip will be destroyed when the instance is.
+  #
+  # Note: `resource.aws_eip` can mention `instance` in its configuration to associate to, but
+  # that would mean eip will be destroyed along with the instance.
   resource.aws_eip_association."chutney_ip_assoc" = {
     instance_id   = "\${aws_instance.chutney.id}";
     allocation_id = "\${aws_eip.chutney_ip.id}";
@@ -130,7 +134,7 @@ in
   # Create S3 bucket used for both uploading custom AMI and as storage backend for the cache
   resource.aws_s3_bucket."chutney" = {
     bucket = "chutney-attic-cache";
-    # Destroy bucket despite it not being empty
+    # Destroy bucket despite it being non-empty
     force_destroy = true;
     tags = {
       Name = "chutney-attic-cache";
