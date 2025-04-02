@@ -92,7 +92,6 @@ in
     instance_type = "t4g.micro";
     vpc_security_group_ids = [ "\${aws_security_group.chutney_ssh.id}" ];
     subnet_id = "\${aws_subnet.chutney.id}";
-    associate_public_ip_address = true;
     key_name = config.resource.aws_key_pair.deployer.key_name;
     iam_instance_profile = "\${aws_iam_instance_profile.chutney_profile.id}";
     root_block_device = {
@@ -104,6 +103,7 @@ in
 
     # Configure options for IMDS
     metadata_options = {
+      http_put_response_hop_limit = 5;
       # attic, at the time of testing, wasn't working with IMDSv2
       http_tokens = "optional"; # Allow both IMDSv1 and IMDSv2
     };
@@ -113,6 +113,18 @@ in
       terranix = "true";
       Terraform = "true";
     };
+  };
+
+
+  # Generate a public IP and associate it with the instance
+  resource.aws_eip."chutney_ip" = { };
+
+  # Associate the IP with the instance.
+  # Techinically `resource.eip` can mention `instance` in its configuration to associate but
+  # that would mean eip will be destroyed when the instance is.
+  resource.aws_eip_association."chutney_ip_assoc" = {
+    instance_id   = "\${aws_instance.chutney.id}";
+    allocation_id = "\${aws_eip.chutney_ip.id}";
   };
 
   # Create S3 bucket used for both uploading custom AMI and as storage backend for the cache
@@ -165,7 +177,7 @@ in
   };
 
 
-  output."chutney_public_ip".value = "\${aws_instance.chutney.public_ip}";
+  output."chutney_public_ip".value = "\${aws_eip.chutney_ip.public_ip}";
 
 
 }
