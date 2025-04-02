@@ -103,6 +103,7 @@ in
 
     # Configure options for IMDS
     metadata_options = {
+      # See https://github.com/zhaofengli/attic/issues/232#issuecomment-2772022028
       http_put_response_hop_limit = 5;
       # attic, at the time of testing, wasn't working with IMDSv2
       http_tokens = "optional"; # Allow both IMDSv1 and IMDSv2
