@@ -171,7 +171,7 @@ in
         identifiers = [ "\${aws_iam_role.chutney_ec2_role.arn}" ];
       };
 
-      actions = [ "s3:*" ];
+      actions = [ "s3:GetObject" "s3:PutObject" "s3:DeleteObject" "s3:ListBucket" ];
 
       resources = [
         "\${aws_s3_bucket.chutney.arn}"
