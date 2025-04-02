@@ -22,8 +22,13 @@ get-ip:
   terraform output -raw chutney_public_ip
 
 # Run `terraform destroy` and delete `terraform.tfstate*`
-destroy:
+destroy-all:
   just init
   terraform destroy
   rm terraform.tfstate*
+
+# Destroy a specific resource. Run `terraform state list` to find the `resource`
+destroy resource:
+  just init
+  terraform destroy -target {{resource}}
   
