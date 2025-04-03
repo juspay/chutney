@@ -59,6 +59,7 @@ in
 
   services.postgresql = {
     enable = true;
+    dataDir = "/mnt/postgres/data";
     ensureUsers = [
       {
         name = config.services.atticd.user;
