@@ -109,11 +109,35 @@ in
       http_tokens = "optional"; # Allow both IMDSv1 and IMDSv2
     };
 
+    # Format the EBS volume if not already formatted
+    user_data = ''
+      #!/usr/bin/env bash
+      DEVICE=/dev/nvme1n1
+      LABEL=postgres-state
+      if ! blkid $DEVICE; then
+        mkfs.ext4 -L $LABEL $DEVICE
+      fi
+    '';
+
     tags = {
       Name = "chutney-attic-server";
       terranix = "true";
       Terraform = "true";
     };
+  };
+
+  # EBS Volume to preserve postgres db state -- allows aws_instance upgrade without requiring to restore from a backup
+  resource.aws_ebs_volume."chutney_postgres_state" = {
+    availability_zone = "\${aws_subnet.chutney.availability_zone}";
+    size = 20; # In GBs
+    type = "gp3";
+    iops = 3000;
+  };
+
+  resource.aws_volume_attachment."chutney_postgres_state" = {
+    device_name = "/dev/sdf"; # Maps to /dev/nvme1n1 on a ARM-based EC2 instance
+    volume_id   = "\${aws_ebs_volume.chutney_postgres_state.id}";
+    instance_id = "\${aws_instance.chutney.id}";
   };
 
 
