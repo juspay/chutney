@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 let
   # Temporary public IPv4
-  domain = "52.66.226.2";
+  domain = "13.235.158.155";
   port = 8080;
 in
 {
