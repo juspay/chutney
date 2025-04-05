@@ -5,6 +5,7 @@
 ## Usage
 
 1. Configure AWS credentials
+1. Replace `resource.aws_key_pair.deployer.public_key` in `./modules/terranix/default.nix` with your SSH public key
 1. Run `just apply` to deploy the server and its support infra
 1. Run `just get-ip` to fetch the server's public IPv4 address
 1. Run `nixos-rebuild switch --flake .#chutney --target-host root@<public-ip>` to activate `chutney`'s nixosConfiguration.

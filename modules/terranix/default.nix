@@ -17,12 +17,12 @@ in
   provider.aws.region = "ap-south-1";
 
   resource.aws_vpc.chutney.cidr_block = "10.0.0.0/16";
-  resource.aws_internet_gateway.chutney_gw.vpc_id = "\${aws_vpc.chutney.id}";
-  resource.aws_route_table.chutney_vpc_rt.vpc_id = "\${aws_vpc.chutney.id}";
+  resource.aws_internet_gateway.chutney.vpc_id = "\${aws_vpc.chutney.id}";
+  resource.aws_route_table.chutney.vpc_id = "\${aws_vpc.chutney.id}";
   resource.aws_route.ipv4 = {
-    route_table_id = "\${aws_route_table.chutney_vpc_rt.id}";
+    route_table_id = "\${aws_route_table.chutney.id}";
     destination_cidr_block = "0.0.0.0/0";
-    gateway_id = "\${aws_internet_gateway.chutney_gw.id}";
+    gateway_id = "\${aws_internet_gateway.chutney.id}";
   };
   resource.aws_subnet.chutney = {
     vpc_id = "\${aws_vpc.chutney.id}";
@@ -30,10 +30,9 @@ in
   };
   resource.aws_route_table_association.chutney_route = {
     subnet_id = "\${aws_subnet.chutney.id}";
-    route_table_id = "\${aws_route_table.chutney_vpc_rt.id}";
+    route_table_id = "\${aws_route_table.chutney.id}";
   };
-  resource.aws_security_group.chutney_ssh = {
-    name = "allow ssh";
+  resource.aws_security_group.allow_web_and_ssh = {
     vpc_id = "\${aws_vpc.chutney.id}";
     ingress = map mkSecurityGroupRule [
       {
@@ -63,7 +62,6 @@ in
     ];
   };
 
-  # provide ssh key
   resource.aws_key_pair.deployer = {
     key_name = "deployer-pub-key";
     public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFN5Ov2zDIG59/DaYKjT0sMWIY15er1DZCT9SIak07vK";
@@ -77,7 +75,7 @@ in
     filter = [
       {
         name = "name";
-        values = [ "nixos/${node.config.system.stateVersion}*" ];
+        values = [ "nixos/${node.config.system.nixos.release}*" ];
       }
       {
         name = "architecture";
@@ -86,11 +84,11 @@ in
     ];
   };
 
-  # create machine
+  # Create VPS (EC2 instance)
   resource.aws_instance.chutney = {
     ami = "\${data.aws_ami.nixos_arm64.id}";
     instance_type = "t4g.micro";
-    vpc_security_group_ids = [ "\${aws_security_group.chutney_ssh.id}" ];
+    vpc_security_group_ids = [ "\${aws_security_group.allow_web_and_ssh.id}" ];
     subnet_id = "\${aws_subnet.chutney.id}";
     key_name = config.resource.aws_key_pair.deployer.key_name;
     iam_instance_profile = "\${aws_iam_instance_profile.chutney_profile.id}";
@@ -99,26 +97,15 @@ in
       volume_size = 50; # In GB
       volume_type = "gp3";
       iops = 3000;
-      delete_on_termination = true;
-    };
-
-    # Configure options for IMDS
-    metadata_options = {
-      # See https://github.com/zhaofengli/attic/issues/232#issuecomment-2772022028
-      http_put_response_hop_limit = 5;
-      # attic, at the time of testing, wasn't working with IMDSv2
-      http_tokens = "optional"; # Allow both IMDSv1 and IMDSv2
     };
 
     tags = {
       Name = "chutney-attic-server";
-      terranix = "true";
-      Terraform = "true";
     };
   };
 
-  # Create S3 bucket used for both uploading custom AMI and as storage backend for the cache
-  resource.aws_s3_bucket."chutney" = {
+  # Storage backend
+  resource.aws_s3_bucket.chutney_attic_cache = {
     bucket = "chutney-attic-cache";
     # Destroy bucket despite it being non-empty
     force_destroy = true;
@@ -146,7 +133,7 @@ in
   };
 
   resource.aws_s3_bucket_policy.allow_chutney = {
-    bucket = "\${aws_s3_bucket.chutney.id}";
+    bucket = "\${aws_s3_bucket.chutney_attic_cache.id}";
     policy = "\${data.aws_iam_policy_document.allow_chutney.json}";
   };
 
@@ -160,14 +147,11 @@ in
       actions = [ "s3:GetObject" "s3:PutObject" "s3:DeleteObject" "s3:ListBucket" ];
 
       resources = [
-        "\${aws_s3_bucket.chutney.arn}"
-        "\${aws_s3_bucket.chutney.arn}/*"
+        "\${aws_s3_bucket.chutney_attic_cache.arn}"
+        "\${aws_s3_bucket.chutney_attic_cache.arn}/*"
       ];
     };
   };
 
-
-  output."chutney_public_ip".value = "\${aws_eip.chutney_ip.public_ip}";
-
-
+  output."chutney_public_ip".value = "\${aws_instance.chutney.public_ip}";
 }

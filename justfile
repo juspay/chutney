@@ -2,33 +2,31 @@
 default:
   @just --list
 
-# Generates `config.tf.json` and runs `terraform init`
-init:
-  nix build -o config.tf.json
-  terraform init
 
-# Run `just init` and `terraform plan`
+# View the deployment plan
 plan:
   just init
   terraform plan
 
-# Run `just init` and `terraform apply` (deploy)
+# Deploy the infrastructure
 apply:
   just init
   terraform apply
 
-# Get the public IP of the EC2 (Assumes `just apply` has been run)
-get-ip:
-  terraform output -raw chutney_public_ip
-
-# Run `terraform destroy` and delete `terraform.tfstate*`
+# Destroy the infrastructure and remove its state
 destroy-all:
   just init
   terraform destroy
   rm terraform.tfstate*
 
-# Destroy a specific resource. Run `terraform state list` to find the `resource`
-destroy resource:
-  just init
-  terraform destroy -target {{resource}}
-  
+# Generates `config.tf.json` and runs `terraform init`
+[group('utils')]
+init:
+  nix build -o config.tf.json
+  terraform init
+
+# Get the public IP of the server (Assumes `just apply` has been run)
+[group('utils')]
+get-ip:
+  terraform output -raw chutney_public_ip
+
