@@ -18,3 +18,9 @@
 1. Follow [cache creation](https://docs.attic.rs/tutorial.html#cache-creation) guide from attic.
 1. Follow the guide from attic to [push](https://docs.attic.rs/tutorial.html#pushing) and [pull](https://docs.attic.rs/tutorial.html#pulling) to/from the cache.
 
+## Gotchas
+
+### Flaky `just destroy-all`
+
+`just destory-all` can indefinitely keep trying to delete the `aws_vpc.chutney`, this happens (atleast with Juspay's AWS account) when the vpc has a non-default security group depenedency not managed by terraform. This dependency has to be manually deleted by running `nix run .#vpc-sg-cleanup <vpc-id>` in another terminal window.
+
