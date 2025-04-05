@@ -93,17 +93,6 @@ in
   environment.systemPackages = [
     # Needed for creating root-token using `atticd-atticadm`
     config.services.atticd.package
-    pkgs.awscli2
-    (pkgs.writeShellApplication {
-      name = "attic-gc-once";
-      # `server.toml` file creation based on https://github.com/NixOS/nixpkgs/blob/88efe689298b1863db0310c0a22b3ebb4d04fbc3/nixos/modules/services/networking/atticd.nix#L18
-      text = ''
-        # shellcheck source=/dev/null
-        source ${config.environment.etc."atticd.env".source}
-        export ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64
-        atticd -f ${(pkgs.formats.toml {}).generate "server.toml" config.services.atticd.settings} --mode garbage-collector-once
-      '';
-    })
   ];
 
   # For testing only - Replace with secrets management

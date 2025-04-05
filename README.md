@@ -18,11 +18,3 @@
 1. Follow [cache creation](https://docs.attic.rs/tutorial.html#cache-creation) guide from attic.
 1. Follow the guide from attic to [push](https://docs.attic.rs/tutorial.html#pushing) and [pull](https://docs.attic.rs/tutorial.html#pulling) to/from the cache.
 
-## Garbage collection (GC)
-
-Auto GC is disabled in chutney. Manually run the GC in the `atticd` server:
-
-```sh
-sudo -u atticd attic-gc-once
-```
-
