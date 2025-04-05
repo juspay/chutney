@@ -2,7 +2,7 @@
 
 `chutney` is a [terranix](https://terranix.org/) module to deploy production-ready [attic](https://docs.attic.rs/) binary cache for Nix store objects in AWS.
 
-## Usage
+## Getting Started
 
 1. Configure AWS credentials
 1. Replace `resource.aws_key_pair.deployer.public_key` in `./modules/terranix/default.nix` with your SSH public key
