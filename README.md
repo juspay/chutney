@@ -18,6 +18,17 @@
 1. Follow [cache creation](https://docs.attic.rs/tutorial.html#cache-creation) guide from attic.
 1. Follow the guide from attic to [push](https://docs.attic.rs/tutorial.html#pushing) and [pull](https://docs.attic.rs/tutorial.html#pulling) to/from the cache.
 
+## Guide
+
+### Support more platforms in `.terraform.lock.hcl`
+
+Currently only `darwin_arm64` is supported. To manage infra from other platform/s, follow:
+- `mv .terraform.lock.hcl .terraform.lock.hcl.bkp`
+- `terraform init`
+- Add back the extra `hashes` from `.terraform.lock.hcl.bkp` to `.terraform.lock.hcl`
+
+We can't use the `terraform providers lock -platform=<platform-1> -platform=<platform-2> ...` as this command always fetches and locks the latest aws provider and not the pinned one from nixpkgs (The provider is pinned using `terraform.withPlugins` in `devShells.default` ).
+
 ## Gotchas
 
 ### Flaky `just destroy-all`
