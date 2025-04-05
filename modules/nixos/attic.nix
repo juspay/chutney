@@ -24,7 +24,6 @@ in
         region = "ap-south-1";
         # TODO: autowire from terranix config
         bucket = "chutney-attic-cache";
-        endpoint = "https://chutney-attic-cache.s3.amazonaws.com/";
       };
 
       compression.type = "zstd";
