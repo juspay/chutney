@@ -18,15 +18,12 @@ in
       database.url = "postgresql://${config.services.atticd.user}?host=/run/postgresql/";
 
       api-endpoint = "http://${domain}/";
-      allowed-hosts = [
-        domain
-      ];
 
       storage = {
         type = "s3";
         region = "ap-south-1";
-        bucket = "juspay-attic";
-        endpoint = "https://juspay-attic.s3.amazonaws.com/";
+        # TODO: autowire from terranix config
+        bucket = "chutney-attic-cache";
       };
 
       compression.type = "zstd";
@@ -85,6 +82,7 @@ in
     recommendedZstdSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
+    clientMaxBodySize = "0"; # Remove size restrictions
     virtualHosts.${domain} = {
       # enableACME = true;
       # forceSSL = true;

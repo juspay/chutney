@@ -1,1 +1,6 @@
+# Nix
 /result
+/.direnv
+
+# terraform
+/.terraform
