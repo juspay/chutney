@@ -19,6 +19,14 @@ destroy-all:
   terraform destroy
   rm terraform.tfstate*
 
+# Edit a secret file
+secret-edit:
+    cd ./secrets && agenix -e $(fd -e age | fzf)
+
+# Rekey all secrets (usually done after adding/removing hosts/users)
+secrets-rekey:
+    cd ./secrets && agenix -r
+
 # Generates `config.tf.json` and runs `terraform init`
 [group('utils')]
 init:

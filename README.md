@@ -29,6 +29,35 @@ Currently only `darwin_arm64` is supported. To manage infra from other platform/
 
 We can't use the `terraform providers lock -platform=<platform-1> -platform=<platform-2> ...` as this command always fetches and locks the latest aws provider and not the pinned one from nixpkgs (The provider is pinned using `terraform.withPlugins` in `devShells.default` ).
 
+### Secrets
+
+`chutney` uses [agenix](https://github.com/ryantm/agenix) for secrets management.
+
+#### Adding a new secret
+
+- `cd secrets && agenix -e <mysecret.age>`
+
+#### Editing an existing secret
+
+Run `just secret-edit` and select the key to edit.
+
+#### Adding a new user/host
+
+Add the new user/host in `./secrets/secrets.nix` and run `just secrets-rekey` to allow the new user/host to decrypt the keys.
+
+### Cache administration
+
+Login to attic using the root-token for admin related work:
+```
+cd secrets && nix run nixpkgs#attic-client -- login root http://65.0.102.202 $(agenix -d attic/root-token.age)
+```
+
+### Cache creation
+
+- Ensure you are logged in as an admin (see [Cache administation](#cache-administration))
+- Run `nix run nixpkgs#attic-client cache create <cache-name>`
+- SSH into the host and generate the access token, see comments above `attic/oss-push-token.age` in `secrets/secrets.nix`. Also see <https://docs.attic.rs/tutorial.html#access-control>
+
 ## Gotchas
 
 ### Flaky `just destroy-all`
