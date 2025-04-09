@@ -1,8 +1,4 @@
 {
-  nixConfig = {
-    extra-substituters = "http://65.0.102.202/oss";
-    extra-trusted-public-keys = "oss:w/g6Ylufxm7hqOztR1wIw+Ig73zSCYMtpMi83UwlPlA=";
-  };
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     systems.url = "github:nix-systems/default";
