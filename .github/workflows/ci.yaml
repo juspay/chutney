@@ -19,4 +19,6 @@ jobs:
       - name: om show
         run: om show .
       - name: om ci
-        run: om ci run --extra-access-tokens "github.com=${{ secrets.GITHUB_TOKEN }}" --systems "${{ matrix.system }}" --include-all-dependencies | nix run nixpkgs#attic-client push oss
+        run: om ci run --extra-access-tokens "github.com=${{ secrets.GITHUB_TOKEN }}" --systems "${{ matrix.system }}" --include-all-dependencies
+      - name: push to attic
+        run: nix run nixpkgs#attic-client push oss result
