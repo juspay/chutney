@@ -15,10 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: attic login
-        run: nix run nixpkgs#attic-client login chutney http://65.0.102.202 ${{ secrets.ATTIC_LOGIN_TOKEN }}
+        run: attic login chutney http://65.0.102.202 ${{ secrets.ATTIC_LOGIN_TOKEN }}
       - name: om show
         run: om show .
       - name: om ci
         run: om ci run --extra-access-tokens "github.com=${{ secrets.GITHUB_TOKEN }}" --systems "${{ matrix.system }}" --include-all-dependencies
-      - name: push to attic
-        run: nix run nixpkgs#attic-client push oss result
+      - name: attic push
+        run: attic push chutney:oss result
