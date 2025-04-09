@@ -15,8 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: attic login
-        run: attic login http://65.0.102.202 ${{ secrets.ATTIC_LOGIN_TOKEN }}
+        run: nix run nixpkgs#attic-client -- login http://65.0.102.202 ${{ secrets.ATTIC_LOGIN_TOKEN }}
       - name: om show
         run: om show .
       - name: om ci
-        run: om ci run --extra-access-tokens "github.com=${{ secrets.GITHUB_TOKEN }}" --systems "${{ matrix.system }}" --include-all-dependencies | attic push oss
+        run: om ci run --extra-access-tokens "github.com=${{ secrets.GITHUB_TOKEN }}" --systems "${{ matrix.system }}" --include-all-dependencies | nix run nixpkgs#attic-client push oss
