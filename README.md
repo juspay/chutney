@@ -6,6 +6,7 @@
 - [Guide](#guide)
   - [Create cache](#create-cache)
   - [Secrets](#secrets)
+  - [Garbage Collection](#garbage-collection)
 - [Gotchas](#gotchas)
 
 ## Getting Started
@@ -55,6 +56,16 @@ Run `just secret-edit` and select the key to edit.
 #### Adding a new user/host
 
 Add the new user/host in `./secrets/secrets.nix` and run `just secrets-rekey` to allow the new user/host to decrypt the keys.
+
+### Garbage Collection
+
+> **Note:**
+> Auto GC is disabled in `chutney`. The only way GC will free up space is if you have configured `retention-period` for your cache. See <https://docs.attic.rs/tutorial.html#garbage-collection>
+
+Run Garbage Collection once:
+```sh
+sudo -u atticd attic-gc-once
+```
 
 ### Support more platforms in `.terraform.lock.hcl`
 

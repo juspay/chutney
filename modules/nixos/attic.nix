@@ -6,7 +6,10 @@ let
 in
 {
   age.secrets = {
-    "attic/env.age".file = ../../secrets/attic/env.age;
+    "attic/env.age" = {
+      owner = config.services.atticd.user;
+      file = ../../secrets/attic/env.age;
+    };
   };
 
   services.atticd = {
@@ -97,5 +100,20 @@ in
   environment.systemPackages = [
     # Needed for creating root-token using `atticd-atticadm`
     config.services.atticd.package
+    (pkgs.writeShellApplication {
+      name = "attic-gc-once";
+      runtimeInputs = [ config.services.atticd.package ];
+      text =
+        let
+          # `server.toml` file creation based on https://github.com/NixOS/nixpkgs/blob/88efe689298b1863db0310c0a22b3ebb4d04fbc3/nixos/modules/services/networking/atticd.nix#L18
+          serverToml = (pkgs.formats.toml { }).generate "server.toml" config.services.atticd.settings;
+        in
+        ''
+          # shellcheck source=/dev/null
+          source ${config.services.atticd.environmentFile}
+          export ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64
+          atticd -f ${serverToml} --mode garbage-collector-once
+        '';
+    })
   ];
 }
