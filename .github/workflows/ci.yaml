@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: attic login
-        run: nix run nixpkgs#attic-client -- login http://65.0.102.202 ${{ secrets.ATTIC_LOGIN_TOKEN }}
+        run: nix run nixpkgs#attic-client login chutney http://65.0.102.202 ${{ secrets.ATTIC_LOGIN_TOKEN }}
       - name: om show
         run: om show .
       - name: om ci
