@@ -11,6 +11,7 @@
 ## Getting Started
 
 1. Configure AWS credentials
+1. Run `nix run .#create-state-bucket` to store the [terraform state file](https://developer.hashicorp.com/terraform/language/state)
 1. Replace `resource.aws_key_pair.deployer.public_key` in `./modules/terranix/default.nix` with your SSH public key
 1. Run `just apply` to deploy the server and its support infra
 1. Run `just get-ip` to fetch the server's public IPv4 address

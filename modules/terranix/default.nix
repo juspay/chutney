@@ -16,6 +16,12 @@ in
 
   provider.aws.region = "ap-south-1";
 
+  backend.s3 = {
+    bucket = "chutney-tf-state";
+    key = "terraform.tfstate";
+    region = config.provider.aws.region;
+  };
+
   resource.aws_vpc.chutney.cidr_block = "10.0.0.0/16";
   resource.aws_internet_gateway.chutney.vpc_id = "\${aws_vpc.chutney.id}";
   resource.aws_route_table.chutney.vpc_id = "\${aws_vpc.chutney.id}";
