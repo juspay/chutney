@@ -1,4 +1,8 @@
 {
+  nixConfig = {
+    extra-substituters = "http://65.0.102.202/oss";
+    extra-trusted-public-keys = "oss:w/g6Ylufxm7hqOztR1wIw+Ig73zSCYMtpMi83UwlPlA=";
+  };
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     systems.url = "github:nix-systems/default";
@@ -9,6 +13,13 @@
       inputs.flake-parts.follows = "flake-parts";
       inputs.systems.follows = "systems";
     };
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      # Ignore dependencies not relevant for using the nixosModule
+      inputs.darwin.follows = "";
+      inputs.home-manager.follows = "";
+    };
   };
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     flake.nixosConfigurations.chutney = inputs.nixpkgs.lib.nixosSystem {
@@ -16,11 +27,12 @@
       modules = [
         "${inputs.nixpkgs}/nixos/maintainers/scripts/ec2/amazon-image.nix"
         ./configuration.nix
+        inputs.agenix.nixosModules.default
         ./modules/nixos
       ];
     };
     systems = import inputs.systems;
-    perSystem = { pkgs, system, ... }: {
+    perSystem = { inputs', pkgs, system, ... }: {
       _module.args.pkgs = import inputs.nixpkgs {
         inherit system;
         # terraform has an unfree license
@@ -63,9 +75,12 @@
           (terraform.withPlugins (p: [
             p.aws
           ]))
+          inputs'.agenix.packages.default
+          fd
+          fzf
         ];
       };
-      checks.integration = pkgs.testers.runNixOSTest ./tests/integration.nix;
+      checks.integration = pkgs.testers.runNixOSTest (import ./tests/integration.nix inputs);
     };
   };
 }
