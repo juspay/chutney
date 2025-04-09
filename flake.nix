@@ -76,7 +76,7 @@
           fzf
         ];
       };
-      checks.integration = pkgs.testers.runNixOSTest ./tests/integration.nix;
+      checks.integration = pkgs.testers.runNixOSTest (import ./tests/integration.nix inputs);
     };
   };
 }
