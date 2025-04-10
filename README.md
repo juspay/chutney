@@ -64,6 +64,7 @@ Add the new user/host in `./secrets/secrets.nix` and run `just secrets-rekey` to
 
 Run Garbage Collection once:
 ```sh
+ssh root@<public-ip>
 sudo -u atticd attic-gc-once
 ```
 
