@@ -98,7 +98,6 @@ in
     subnet_id = "\${aws_subnet.chutney.id}";
     key_name = config.resource.aws_key_pair.deployer.key_name;
     iam_instance_profile = "\${aws_iam_instance_profile.chutney_profile.id}";
-    associate_public_ip_address = true;
     root_block_device = {
       volume_size = 50; # In GB
       volume_type = "gp3";
@@ -108,6 +107,21 @@ in
     tags = {
       Name = "chutney-attic-server";
     };
+  };
+
+  # Generate a public IP
+  #
+  # Note: We aren't using `associate_public_ip_address = true;` in `aws_instance` because that will generate a new
+  # IP when a new instance is created.
+  resource.aws_eip."chutney" = { };
+
+  # Associate the IP with the instance.
+  #
+  # Note: `resource.aws_eip.chutney` can mention `instance` in its configuration to associate to, but
+  # that would mean eip will be destroyed along with the instance.
+  resource.aws_eip_association."chutney" = {
+    instance_id   = "\${aws_instance.chutney.id}";
+    allocation_id = "\${aws_eip.chutney.id}";
   };
 
   # Storage backend
@@ -159,5 +173,5 @@ in
     };
   };
 
-  output."chutney_public_ip".value = "\${aws_instance.chutney.public_ip}";
+  output."chutney_public_ip".value = "\${aws_eip.chutney.public_ip}";
 }
