@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: attic login
-        run: attic login chutney http://65.0.102.202 ${{ secrets.ATTIC_LOGIN_TOKEN }}
+        run: attic login chutney http://13.202.152.28 ${{ secrets.ATTIC_LOGIN_TOKEN }}
       - name: om show
         run: om show .
       - name: om ci
