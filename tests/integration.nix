@@ -19,7 +19,6 @@ inputs:
       # Override production-only settings
       settings = {
         api-endpoint = lib.mkForce "";
-        allowed-hosts = lib.mkForce [ ];
       };
     };
 
@@ -34,7 +33,7 @@ inputs:
     machine.wait_for_unit("atticd.service")
     machine.wait_for_open_port(8080)
 
-    attic_html = machine.succeed("curl http://127.0.0.1")
+    attic_html = machine.succeed("curl http://127.0.0.1:8080")
     assert ("Attic Binary Cache" in attic_html)
   '';
 }
