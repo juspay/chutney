@@ -37,7 +37,7 @@
 
 Login to attic using the root-token for admin related work:
 ```
-cd secrets && nix run nixpkgs#attic-client -- login root http://13.202.152.28 $(agenix -d attic/root-token.age)
+cd secrets && nix run nixpkgs#attic-client -- login root https://cache.nixos.asia $(agenix -d attic/root-token.age)
 ```
 
 ### Create cache

@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 let
   # Temporary public IPv4
-  domain = "13.202.152.28";
+  domain = "cache.nixos.asia";
   port = 8080;
 in
 {
@@ -24,7 +24,7 @@ in
       # TODO: atticd.service must wait until postgresql.service is active
       database.url = "postgresql://${config.services.atticd.user}?host=/run/postgresql/";
 
-      api-endpoint = "http://${domain}/";
+      api-endpoint = "https://${domain}/";
 
       storage = {
         type = "s3";
@@ -83,6 +83,10 @@ in
 
   networking.firewall.allowedTCPPorts = [ 443 80 ];
 
+  # Required for enabling ACME
+  security.acme.defaults.email = "admin@juspay.in";
+  security.acme.acceptTerms = true;
+
   services.nginx = {
     enable = true;
     recommendedTlsSettings = true;
@@ -91,8 +95,8 @@ in
     recommendedProxySettings = true;
     clientMaxBodySize = "0"; # Remove size restrictions
     virtualHosts.${domain} = {
-      # enableACME = true;
-      # forceSSL = true;
+      enableACME = true;
+      forceSSL = true;
       locations."/".proxyPass = "http://127.0.0.1:${builtins.toString port}";
     };
   };
