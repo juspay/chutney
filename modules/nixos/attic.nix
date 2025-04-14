@@ -1,6 +1,5 @@
 { config, pkgs, ... }:
 let
-  # Temporary public IPv4
   domain = "cache.nixos.asia";
   port = 8080;
 in
