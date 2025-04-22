@@ -93,7 +93,7 @@ in
   # Create VPS (EC2 instance)
   resource.aws_instance.chutney = {
     ami = "\${data.aws_ami.nixos_arm64.id}";
-    instance_type = "t4g.micro";
+    instance_type = "t4g.medium";
     vpc_security_group_ids = [ "\${aws_security_group.allow_web_and_ssh.id}" ];
     subnet_id = "\${aws_subnet.chutney.id}";
     key_name = config.resource.aws_key_pair.deployer.key_name;
