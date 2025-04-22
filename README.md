@@ -7,6 +7,7 @@
   - [Create cache](#create-cache)
   - [Secrets](#secrets)
   - [Garbage Collection](#garbage-collection)
+  - [Resize](/RESIZING.md)
 - [Gotchas](#gotchas)
 
 ## Getting Started
