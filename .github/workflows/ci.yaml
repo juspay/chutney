@@ -19,6 +19,6 @@ jobs:
       - name: om show
         run: om show .
       - name: om ci
-        run: om ci run --extra-access-tokens "github.com=${{ secrets.GITHUB_TOKEN }}" --systems "${{ matrix.system }}" --include-all-dependencies
+        run: om ci run --extra-access-tokens "github.com=${{ secrets.GITHUB_TOKEN }}" --systems "${{ matrix.system }}"
       - name: attic push
         run: attic push chutney:oss result
