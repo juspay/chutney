@@ -89,3 +89,6 @@ We can't use the `terraform providers lock -platform=<platform-1> -platform=<pla
 
 `just destory-all` can indefinitely keep trying to delete the `aws_vpc.chutney`, this happens (atleast with Juspay's AWS account) when the vpc has a non-default security group depenedency not managed by terraform. This dependency has to be manually deleted by running `nix run .#vpc-sg-cleanup <vpc-id>` in another terminal window.
 
+### HTTP 524
+
+If your domain uses cloudflare and the requests are proxied through cloudflare, `attic push` might fail on large Nix store objects with`HTTP 524`. This is owing to [cloudflare's 100 second timeout](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/#error-524-a-timeout-occurred). You can fix this by changing `Proxy status` for your domain from `Proxied` to `DNS only` in the cloudflare dashboard.
