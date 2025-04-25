@@ -91,4 +91,6 @@ We can't use the `terraform providers lock -platform=<platform-1> -platform=<pla
 
 ### HTTP 524
 
-If your domain uses cloudflare and the requests are proxied through cloudflare, `attic push` might fail on large Nix store objects with`HTTP 524`. This is owing to [cloudflare's 100 second timeout](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/#error-524-a-timeout-occurred). You can fix this by changing `Proxy status` for your domain from `Proxied` to `DNS only` in the cloudflare dashboard.
+If your domain uses cloudflare and the requests are proxied through cloudflare, `attic push` might fail on large Nix store objects with`HTTP 524`. This is owing to [cloudflare's 100 second timeout](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/#error-524-a-timeout-occurred). You can fix this by changing `Proxy status` for your domain from `Proxied` to `DNS only` in the cloudflare dashboard, as the aforementioned page describes:
+
+> If you regularly run HTTP requests that take over 100 seconds to complete (for example, large data exports), move those processes behind a subdomain not proxied (grey clouded) in the Cloudflare DNS app.
