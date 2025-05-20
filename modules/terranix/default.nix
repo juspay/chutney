@@ -103,6 +103,7 @@ in
       volume_type = "gp3";
       iops = 3000;
     };
+    disable_api_termination = true;
 
     tags = {
       Name = "chutney-attic-server";
