@@ -36,13 +36,17 @@
     };
     systems = import inputs.systems;
     perSystem = { inputs', pkgs, system, ... }: {
-
-      imports = [
-        "${inputs.nixpkgs}/nixos/modules/misc/nixpkgs.nix"
-        ./modules/nixos/nixpkgs.nix
-      ];
-      nixpkgs.hostPlatform = system;
-
+      _module.args.pkgs = import inputs.nixpkgs {
+        inherit system;
+        # terraform has an unfree license
+        config.allowUnfree = true;
+        # TODO: Import from ./modules/nixos/nixpkgs.nix
+        overlays = [
+          (final: prev: {
+            attic-server = inputs'.attic.packages.attic-server;
+          })
+        ];
+      };
       packages.default = inputs.terranix.lib.terranixConfiguration {
         inherit system;
         extraArgs = {

@@ -4,7 +4,7 @@ inputs:
   name = "chutney-integration-test";
   nodes.machine = { config, ... }: {
     imports = [
-      ../modules/nixos
+      ../modules/nixos/attic.nix
       inputs.agenix.nixosModules.default
     ];
 
