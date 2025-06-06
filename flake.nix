@@ -16,10 +16,17 @@
       inputs.darwin.follows = "";
       inputs.home-manager.follows = "";
     };
+    attic = {
+      url = "github:shivaraj-bh/attic/max-nar-info-size"; # https://github.com/zhaofengli/attic/pull/252
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs-stable.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
   };
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     flake.nixosConfigurations.chutney = inputs.nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
+      specialArgs = { inherit inputs; };
       modules = [
         "${inputs.nixpkgs}/nixos/maintainers/scripts/ec2/amazon-image.nix"
         ./configuration.nix
@@ -33,6 +40,12 @@
         inherit system;
         # terraform has an unfree license
         config.allowUnfree = true;
+        # TODO: Import from ./modules/nixos/nixpkgs.nix
+        overlays = [
+          (final: prev: {
+            attic-server = inputs'.attic.packages.attic-server;
+          })
+        ];
       };
       packages.default = inputs.terranix.lib.terranixConfiguration {
         inherit system;
