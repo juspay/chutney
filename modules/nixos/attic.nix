@@ -34,6 +34,9 @@ in
 
       compression.type = "zstd";
 
+      # The maximum size of the upload info JSON, in bytes.
+      max-nar-info-size = 2048576; # 2 MiB
+
       # Disable automatic GC:
       garbage-collection.interval = "0s";
 
