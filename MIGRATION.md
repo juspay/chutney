@@ -83,6 +83,7 @@
      remote_file::jsonb @> '{"S3": {"bucket": "chutney-attic-cache"}}'
      OR remote_file_id LIKE '%/chutney-attic-cache/%';
  ```
+ Note: Without this step, you will be able to push and pull new chunks but fail to pull old chunks if the new instance doesn't have access to old bucket.
 - Flip the `A` record on your domain to the new IP
 - Run `nixos-rebuild switch --flake .#chutney --target-host root@<new-public-ip>` to renew SSL certs.
 
