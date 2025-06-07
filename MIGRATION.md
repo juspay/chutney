@@ -1,4 +1,8 @@
-This guide is for migrating from one AWS account to another in the same region, but most parts will be same while migrating to a different region and some while migrating to a different cloud provider. Throughout this guide, from here on, we will refer to "AWS account" as "account".
+> [!IMPORTANT]
+> This guide is for migrating from one AWS account to another in the same region, but most parts will be same while migrating to a different region and some while migrating to a different cloud provider.
+
+> [!NOTE]
+> Throughout this guide, from here on, we will refer to "AWS account" as "account".
 
 - Rename `backend.s3.bucket` and `resource.aws_s3_bucket.chutney_attic_cache.bucket` in terranix config, to not conflict with existing buckets in the same region.
   - We went with `chutney-tf-state-1` and `chutney-attic-cache-1` respectively.
@@ -10,8 +14,8 @@ This guide is for migrating from one AWS account to another in the same region, 
 - `just secrets-rekey`
 - Run `nixos-rebuild switch --flake .#chutney --target-host root@<new-public-ip>` to activate `chutney`'s nixosConfiguration.
   - Note: `acme` service will fail to start here as the `A` record for the domain isn't flipped yet.
-- Take down the attic server in the old account
-- Add rules for the s3 bucket in old account to give read access to the one in new account (Note: Do this in a new worktree without the changes from above):
+- Stop requests to the attic server in the old account by setting `services.nginx.enable = false` (Note: Make all the changes to the old account in a new worktree without the changes from above to avoid mix-ups)
+- Add rules for the s3 bucket in old account to give read access to the one in new account:
 ```nix
 # Inside terranix config
 {
