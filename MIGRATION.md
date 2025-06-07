@@ -16,31 +16,31 @@
   - Note: `acme` service will fail to start here as the `A` record for the domain isn't flipped yet.
 - Stop requests to the attic server in the old account by setting `services.nginx.enable = false` (Note: Make all the changes to the old account in a new worktree without the changes from above to avoid mix-ups)
 - Add rules for the s3 bucket in old account to give read access to the one in new account:
-```nix
-# Inside terranix config
-{
-  data.aws_iam_policy_document.allow_chutney = {
-    statement = [
-      {
-        # principals = { ... };
-      }
-      {
-        principals = {
-          type = "AWS";
-          identifiers = [ "arn:aws:iam::<new-account-id>:root"];
-        };
-
-        actions = [ "s3:GetObject" "s3:ListBucket" ];
-
-        resources = [
-          "\${aws_s3_bucket.chutney_attic_cache.arn}"
-          "\${aws_s3_bucket.chutney_attic_cache.arn}/*"
-        ];
-      }
-    ];
-  };
-}
-```
+  ```nix
+  # Inside terranix config
+  {
+    data.aws_iam_policy_document.allow_chutney = {
+      statement = [
+        {
+          # principals = { ... };
+        }
+        {
+          principals = {
+            type = "AWS";
+            identifiers = [ "arn:aws:iam::<new-account-id>:root"];
+          };
+  
+          actions = [ "s3:GetObject" "s3:ListBucket" ];
+  
+          resources = [
+            "\${aws_s3_bucket.chutney_attic_cache.arn}"
+            "\${aws_s3_bucket.chutney_attic_cache.arn}/*"
+          ];
+        }
+      ];
+    };
+  }
+  ```
 - With AWS Credentials configured for new account, run: `aws s3 sync s3://chutney-attic-cache s3://chutney-attic-cache-1 --source-region ap-south-1 --region ap-south-1` (Note: This process was extremely slow for me, taking over ~3hours for source bucket size between 8-9GB)
 - Save the postgres database dump:
   ```sh
