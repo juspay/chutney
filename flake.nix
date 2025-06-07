@@ -86,7 +86,7 @@
           runtimeInputs = [ pkgs.awscli2 ];
           runtimeEnv = {
             # TODO: autowire from terranix configuration
-            BUCKET_NAME = "chutney-tf-state";
+            BUCKET_NAME = "chutney-tf-state-1";
             AWS_REGION = "ap-south-1";
           };
           text = ''
