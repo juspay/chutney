@@ -68,22 +68,22 @@
   ```
   I ignored it as it caused no problem during [Resizing](/RESIZING.md), feel free to investigate further.
 - Update `remote_file` location and `remote_file_id` of each chunk in the postgres database:
- ```
- sudo -u atticd psql -d atticd
- UPDATE chunk
- SET
-     remote_file = jsonb_set(
-         remote_file::jsonb,
-         '{S3,bucket}',
-         '"chutney-attic-cache-1"'::jsonb,
-         false -- 'false' means create_missing; since 'bucket' should exist, we don't need to create it.
-     )::text,
-     remote_file_id = REPLACE(remote_file_id, 'chutney-attic-cache', 'chutney-attic-cache-1')
- WHERE
-     remote_file::jsonb @> '{"S3": {"bucket": "chutney-attic-cache"}}'
-     OR remote_file_id LIKE '%/chutney-attic-cache/%';
- ```
- Note: Without this step, you will be able to push and pull new chunks but fail to pull old chunks if the new instance doesn't have access to old bucket.
+  ```psql
+  sudo -u atticd psql -d atticd
+  UPDATE chunk
+  SET
+      remote_file = jsonb_set(
+          remote_file::jsonb,
+          '{S3,bucket}',
+          '"chutney-attic-cache-1"'::jsonb,
+          false -- 'false' means create_missing; since 'bucket' should exist, we don't need to create it.
+      )::text,
+      remote_file_id = REPLACE(remote_file_id, 'chutney-attic-cache', 'chutney-attic-cache-1')
+  WHERE
+      remote_file::jsonb @> '{"S3": {"bucket": "chutney-attic-cache"}}'
+      OR remote_file_id LIKE '%/chutney-attic-cache/%';
+  ```
+  Note: Without this step, you will be able to push and pull new chunks but fail to pull old chunks if the new instance doesn't have access to old bucket.
 - Flip the `A` record on your domain to the new IP
 - Run `nixos-rebuild switch --flake .#chutney --target-host root@<new-public-ip>` to renew SSL certs.
 
