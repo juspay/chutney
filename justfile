@@ -13,11 +13,10 @@ apply:
   just init
   terraform apply
 
-# Destroy the infrastructure and remove its state
-destroy-all:
+# Destroy the infrastructure (state bucket, configured in `terranixConfiguration.backend.s3.bucket` will not be destroyed)
+destroy:
   just init
   terraform destroy
-  rm terraform.tfstate*
 
 # Edit a secret file
 secret-edit:
