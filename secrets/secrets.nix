@@ -7,7 +7,7 @@ let
   # In such a case, get the new public host key using `ssh-keyscan <host-address>` before deploying.
   #
   # TODO: Document this
-  chutney = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAuMC+yz3Kjky9iTR/iUtfmjHJjTn5XGhvuoS9hpxClv";
+  chutney = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFIA03zHMCUmJMCAbDHfkZmxbDOFkrbNMl2v6gJOn916";
 in
 {
   # Generated using https://docs.attic.rs/admin-guide/deployment/nixos.html#generating-the-credentials-file

@@ -17,7 +17,7 @@ in
   provider.aws.region = "ap-south-1";
 
   backend.s3 = {
-    bucket = "chutney-tf-state";
+    bucket = "chutney-tf-state-1";
     key = "terraform.tfstate";
     region = config.provider.aws.region;
   };
@@ -127,7 +127,7 @@ in
 
   # Storage backend
   resource.aws_s3_bucket.chutney_attic_cache = {
-    bucket = "chutney-attic-cache";
+    bucket = "chutney-attic-cache-1";
     # Destroy bucket despite it being non-empty
     force_destroy = true;
     tags = {
