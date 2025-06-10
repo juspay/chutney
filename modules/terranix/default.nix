@@ -73,26 +73,11 @@ in
     public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFN5Ov2zDIG59/DaYKjT0sMWIY15er1DZCT9SIak07vK";
   };
 
-  # Credit: https://nixos.github.io/amis/
-  data.aws_ami.nixos_arm64 = {
-    owners = [ "427812963091" ];
-    most_recent = true;
-
-    filter = [
-      {
-        name = "name";
-        values = [ "nixos/${node.config.system.nixos.release}*" ];
-      }
-      {
-        name = "architecture";
-        values = [ "arm64" ];
-      }
-    ];
-  };
-
   # Create VPS (EC2 instance)
   resource.aws_instance.chutney = {
-    ami = "\${data.aws_ami.nixos_arm64.id}";
+    # AMI ID obtained from https://nixos.github.io/amis/
+    # Use the AWS CLI or the table in the above page to filter for AMIs with `node.config.system.nixos.release`, `config.provider.aws.region` and `arm64` architecture
+    ami = "ami-0de609c5438cf96ac";
     instance_type = "t4g.medium";
     vpc_security_group_ids = [ "\${aws_security_group.allow_web_and_ssh.id}" ];
     subnet_id = "\${aws_subnet.chutney.id}";
