@@ -1,6 +1,5 @@
-{ flake, config, lib, ... }:
+{ config, lib, ... }:
 let
-  inherit (flake) inputs;
   # Credit: https://github.com/input-output-hk/cardano-monitoring/blob/065c923c1fb54f8bb6056ded67c4273a7f58c8d9/flake/opentofu/cluster.nix#L32-L39
   mkSecurityGroupRule = lib.recursiveUpdate {
     protocol = "tcp";
@@ -10,7 +9,6 @@ let
     security_groups = [ ];
     self = true;
   };
-  node = inputs.self.nixosConfigurations.chutney;
 in
 {
 
@@ -73,26 +71,11 @@ in
     public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFN5Ov2zDIG59/DaYKjT0sMWIY15er1DZCT9SIak07vK";
   };
 
-  # Credit: https://nixos.github.io/amis/
-  data.aws_ami.nixos_arm64 = {
-    owners = [ "427812963091" ];
-    most_recent = true;
-
-    filter = [
-      {
-        name = "name";
-        values = [ "nixos/${node.config.system.nixos.release}*" ];
-      }
-      {
-        name = "architecture";
-        values = [ "arm64" ];
-      }
-    ];
-  };
-
   # Create VPS (EC2 instance)
   resource.aws_instance.chutney = {
-    ami = "\${data.aws_ami.nixos_arm64.id}";
+    # AMI ID obtained from https://nixos.github.io/amis/
+    # In <https://nixos.github.io/amis/> use the command in "AWS CLI" section to filter for AMIs with Name: `inputs.self.nixosConfigurations.chutney.config.system.nixos.release`, Region: `config.provider.aws.region` and Architecture: `arm64`. You can also use the 'AMI table" in the same page.
+    ami = "ami-0de609c5438cf96ac";
     instance_type = "t4g.medium";
     vpc_security_group_ids = [ "\${aws_security_group.allow_web_and_ssh.id}" ];
     subnet_id = "\${aws_subnet.chutney.id}";
