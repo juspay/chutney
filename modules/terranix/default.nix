@@ -1,6 +1,5 @@
-{ flake, config, lib, ... }:
+{ config, lib, ... }:
 let
-  inherit (flake) inputs;
   # Credit: https://github.com/input-output-hk/cardano-monitoring/blob/065c923c1fb54f8bb6056ded67c4273a7f58c8d9/flake/opentofu/cluster.nix#L32-L39
   mkSecurityGroupRule = lib.recursiveUpdate {
     protocol = "tcp";
@@ -10,7 +9,6 @@ let
     security_groups = [ ];
     self = true;
   };
-  node = inputs.self.nixosConfigurations.chutney;
 in
 {
 
@@ -76,7 +74,7 @@ in
   # Create VPS (EC2 instance)
   resource.aws_instance.chutney = {
     # AMI ID obtained from https://nixos.github.io/amis/
-    # Use the AWS CLI or the table in the above page to filter for AMIs with `node.config.system.nixos.release`, `config.provider.aws.region` and `arm64` architecture
+    # In <https://nixos.github.io/amis/> use the command in "AWS CLI" section to filter for AMIs with Name: `inputs.self.nixosConfigurations.chutney.config.system.nixos.release`, Region: `config.provider.aws.region` and Architecture: `arm64`. You can also use the 'AMI table" in the same page.
     ami = "ami-0de609c5438cf96ac";
     instance_type = "t4g.medium";
     vpc_security_group_ids = [ "\${aws_security_group.allow_web_and_ssh.id}" ];
