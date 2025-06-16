@@ -66,7 +66,7 @@
   DETAIL:  Key (version)=(m20221227_000001_create_cache_table) already exists.
   CONTEXT:  COPY seaql_migrations, line 1
   ```
-  I ignored it as it caused no problem during [Resizing](/RESIZING.md), feel free to investigate further.
+  I ignored it as it caused no problem in the functionality of the cache, feel free to investigate further.
 - Update `remote_file` location and `remote_file_id` of each chunk in the postgres database:
   ```psql
   sudo -u atticd psql -d atticd
