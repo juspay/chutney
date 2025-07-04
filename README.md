@@ -21,7 +21,7 @@
 1. Run `just get-ip` to fetch the server's public IPv4 address
 1. Replace public keys in `./secrets/secrets.nix` with your own. 
 1. Delete the existing `./secrets/attic/env.age`, [generate](https://docs.attic.rs/admin-guide/deployment/nixos.html#generating-the-credentials-file) new secret and add it by following [Secrets](#secrets)
-1. Run `nixos-rebuild switch --flake .#chutney --target-host root@<public-ip>` to activate `chutney`'s nixosConfiguration.
+1. Run `nixos-rebuild switch --flake .#chutney --target-host root@<public-ip> --accept-flake-config` to activate `chutney`'s nixosConfiguration.
 1. Generate all-access root token (to be used by admins):
     ```sh
     ssh root@<public-ip>

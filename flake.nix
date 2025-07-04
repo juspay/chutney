@@ -1,4 +1,8 @@
 {
+  nixConfig = {
+    extra-substituters = "https://cache.nixos.asia/oss";
+    extra-trusted-public-keys = "oss:KO872wNJkCDgmGN3xy9dT89WAhvv13EiKncTtHDItVU=";
+  };
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     systems.url = "github:nix-systems/default";
@@ -35,7 +39,7 @@
       ];
     };
     systems = import inputs.systems;
-    perSystem = { inputs', pkgs, system, ... }: {
+    perSystem = { inputs', pkgs, lib, system, ... }: {
       _module.args.pkgs = import inputs.nixpkgs {
         inherit system;
         # terraform has an unfree license
@@ -128,7 +132,10 @@
           fzf
         ];
       };
-      checks.integration = pkgs.testers.runNixOSTest (import ./tests/integration.nix inputs);
+      # VM fails to boot successfully on `aarch64-linux`
+      checks = lib.mkIf (pkgs.stdenv.isLinux && !pkgs.stdenv.isAarch64) {
+        integration = pkgs.testers.runNixOSTest (import ./tests/integration.nix inputs);
+      };
     };
   };
 }

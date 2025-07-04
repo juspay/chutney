@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.system }}
     strategy:
       matrix:
-        system: [x86_64-linux]
+        system: [ x86_64-linux, aarch64-linux ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +19,6 @@ jobs:
       - name: om show
         run: om show .
       - name: om ci
-        run: om ci run --extra-access-tokens "github.com=${{ secrets.GITHUB_TOKEN }}" --systems "${{ matrix.system }}"
+        run: om ci run --include-all-dependencies --extra-access-tokens "github.com=${{ secrets.GITHUB_TOKEN }}" --systems "${{ matrix.system }}"
       - name: attic push
         run: attic push chutney:oss result
