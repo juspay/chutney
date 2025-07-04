@@ -12,7 +12,7 @@
 - Follow [Getting Started](/README.md#getting-started) from Step 1 to 6 on the new account.
 - `ssh-keyscan <new-public-ip>` and use the output to replace `chutney` public key in [Secrets](/secrets/secrets.nix)
 - `just secrets-rekey`
-- Run `nixos-rebuild switch --flake .#chutney --target-host root@<new-public-ip>` to activate `chutney`'s nixosConfiguration.
+- Run `nixos-rebuild switch --flake .#chutney --target-host root@<new-public-ip> --accept-flake-config` to activate `chutney`'s nixosConfiguration.
   - Note: `acme` service will fail to start here as the `A` record for the domain isn't flipped yet.
 - Stop requests to the attic server in the old account by setting `services.nginx.enable = false` (Note: Make all the changes to the old account in a new worktree without the changes from above to avoid mix-ups)
 - Add rules for the s3 bucket in old account to give read access to the one in new account:
@@ -85,5 +85,5 @@
   ```
   Note: Without this step, you will be able to push and pull new chunks but fail to pull old chunks if the new instance doesn't have access to old bucket.
 - Flip the `A` record on your domain to the new IP
-- Run `nixos-rebuild switch --flake .#chutney --target-host root@<new-public-ip>` to renew SSL certs.
+- Run `nixos-rebuild switch --flake .#chutney --target-host root@<new-public-ip> --accept-flake-config` to renew SSL certs.
 
