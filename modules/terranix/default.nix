@@ -76,7 +76,7 @@ in
     # AMI ID obtained from https://nixos.github.io/amis/
     # In <https://nixos.github.io/amis/> use the command in "AWS CLI" section to filter for AMIs with Name: `inputs.self.nixosConfigurations.chutney.config.system.nixos.release`, Region: `config.provider.aws.region` and Architecture: `arm64`. You can also use the 'AMI table" in the same page.
     ami = "ami-0de609c5438cf96ac";
-    instance_type = "t4g.medium";
+    instance_type = "t4g.large";
     vpc_security_group_ids = [ "\${aws_security_group.allow_web_and_ssh.id}" ];
     subnet_id = "\${aws_subnet.chutney.id}";
     key_name = config.resource.aws_key_pair.deployer.key_name;
