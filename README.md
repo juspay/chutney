@@ -1,5 +1,10 @@
 # chutney
 
+> [!NOTE]
+> **Status: 🚧 Work in Progress 🚧**
+>
+> This project might undergo changes as we adopt the cache server in more projects.
+
 `chutney` is a [terranix](https://terranix.org/) module to deploy production-ready [attic](https://docs.attic.rs/) binary cache for Nix store objects in AWS.
 
 - [Getting Started](#getting-started)
