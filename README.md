@@ -70,7 +70,7 @@ Add the new user/host in `./secrets/secrets.nix` and run `just secrets-rekey` to
 
 ### Garbage Collection
 
-> **Note:**
+> [!NOTE]
 > Auto GC is disabled in `chutney`. The only way GC will free up space is if you have configured `retention-period` for your cache. See <https://docs.attic.rs/tutorial.html#garbage-collection>
 
 Run Garbage Collection once:
