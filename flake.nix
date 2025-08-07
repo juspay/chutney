@@ -61,6 +61,7 @@
         terranixConfigurations.default = {
           terraformWrapper.package = pkgs.terraform.withPlugins (p: [ p.aws ]);
           modules = [ ./modules/terranix ];
+          workdir = "tf-default-workdir";
         };
       };
       apps.vpc-sg-cleanup = {
