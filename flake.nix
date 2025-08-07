@@ -8,7 +8,7 @@
     systems.url = "github:nix-systems/default";
     flake-parts.url = "github:hercules-ci/flake-parts";
     terranix = {
-      url = "github:terranix/terranix";
+      url = "github:terranix/terranix/pull/133/head";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
       inputs.systems.follows = "systems";
@@ -39,7 +39,10 @@
       ];
     };
     systems = import inputs.systems;
-    perSystem = { inputs', pkgs, lib, system, ... }: {
+    imports = [
+      inputs.terranix.flakeModule
+    ];
+    perSystem = { inputs', pkgs, lib, system, config, ... }: {
       _module.args.pkgs = import inputs.nixpkgs {
         inherit system;
         # terraform has an unfree license
@@ -51,12 +54,15 @@
           })
         ];
       };
-      packages.default = inputs.terranix.lib.terranixConfiguration {
-        inherit system;
-        extraArgs = {
-          flake = { inherit inputs; };
+
+      terranix = {
+        # Imported using `pkgs.mkShell.inputsFrom` in `devShells.default`
+        exportDevShells = false;
+        terranixConfigurations.default = {
+          terraformWrapper.package = pkgs.terraform.withPlugins (p: [ p.aws ]);
+          modules = [ ./modules/terranix ];
+          workdir = "tf-default-workdir";
         };
-        modules = [ ./modules/terranix ];
       };
       apps.vpc-sg-cleanup = {
         type = "app";
@@ -122,11 +128,11 @@
         };
       };
       devShells.default = pkgs.mkShell {
+        inputsFrom = [
+          config.terranix.terranixConfigurations.default.result.devShell
+        ];
         packages = with pkgs; [
           just
-          (terraform.withPlugins (p: [
-            p.aws
-          ]))
           inputs'.agenix.packages.default
           fd
           fzf
