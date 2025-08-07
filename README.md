@@ -22,7 +22,7 @@
     1. Select "Access keys" under your preferred account and use one of the specified methods to "Get credentials"
 1. Run `nix run .#create-state-bucket` to store the [terraform state file](https://developer.hashicorp.com/terraform/language/state)
 1. Replace `resource.aws_key_pair.deployer.public_key` in `./modules/terranix/default.nix` with your SSH public key
-1. Run `just apply` to deploy the server and its support infra
+1. Run `apply` to deploy the server and its support infra
 1. Run `just get-ip` to fetch the server's public IPv4 address
 1. Replace public keys in `./secrets/secrets.nix` with your own. 
 1. Delete the existing `./secrets/attic/env.age`, [generate](https://docs.attic.rs/admin-guide/deployment/nixos.html#generating-the-credentials-file) new secret and add it by following [Secrets](#secrets)
@@ -90,9 +90,9 @@ We can't use the `terraform providers lock -platform=<platform-1> -platform=<pla
 
 ## Gotchas
 
-### Flaky `just destroy-all`
+### Flaky `destroy`
 
-`just destory-all` can indefinitely keep trying to delete the `aws_vpc.chutney`, this happens (atleast with Juspay's AWS account) when the vpc has a non-default security group depenedency not managed by terraform. This dependency has to be manually deleted by running `nix run .#vpc-sg-cleanup <vpc-id>` in another terminal window.
+`destroy` script can indefinitely keep trying to delete the `aws_vpc.chutney`, this happens (atleast with Juspay's AWS account) when the vpc has a non-default security group depenedency not managed by terraform. This dependency has to be manually deleted by running `nix run .#vpc-sg-cleanup <vpc-id>` in another terminal window.
 
 ### HTTP 524
 
