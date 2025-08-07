@@ -8,7 +8,7 @@
     systems.url = "github:nix-systems/default";
     flake-parts.url = "github:hercules-ci/flake-parts";
     terranix = {
-      url = "github:terranix/terranix";
+      url = "github:terranix/terranix/pull/133/head";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
       inputs.systems.follows = "systems";
