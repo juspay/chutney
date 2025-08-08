@@ -1,39 +1,88 @@
+# NixOS VM test to check if the attic server will run as expected, when deployed.
+#
+# TODO:
+# - Microbenchmark Nginx's content caching
+# - Native integration test for `aarch64-linux` (See why in ../modules/flake-parts/integration-test.nix)
 inputs:
-{ lib, ... }:
+{ pkgs, lib, ... }:
+let
+  accessKey = "legit";
+  secretKey = "111-1111111";
+in
 {
   name = "chutney-integration-test";
-  nodes.machine = { config, ... }: {
-    imports = [
-      ../modules/nixos/attic.nix
-      inputs.agenix.nixosModules.default
-    ];
+  node.specialArgs = {
+    domain-name = "server";
+  };
+  nodes = {
+    server = { config, domain, ... }: {
+      imports = [
+        inputs.self.nixosModules.attic
+        inputs.self.nixosModules.minio-attic
+      ];
 
-    age.identityPaths = [ "/etc/ssh/dummy_host_key" ];
-
-    # TODO: Test firewall
-    # TODO: Test storage backend
-
-    services.atticd = {
-      # Overrides the encrypted env secret with a non-encrypted one for testing
-      environmentFile = lib.mkForce "/etc/atticd.env";
-      # Override production-only settings
-      settings = {
-        api-endpoint = lib.mkForce "";
+      services.atticd = {
+        # Secret file used during testing only
+        environmentFile = "/etc/atticd.env";
+        # Override production-only settings
+        settings = {
+          api-endpoint = lib.mkForce "http://${domain-name}/";
+          storage.credentials = {
+            access_key_id = accessKey;
+            secret_access_key = secretKey;
+          };
+        };
       };
-    };
 
-    environment.etc."atticd.env".text = ''
-      ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64='LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBb0xMZDR4d0pjTkZVNjZjdjZSTHB1bWxBMjQzREdMdWNZellZNFJyYUJBbVBNbEhxCmhCWEtEQkhvV0l0dyt6b3BwWGVHdmdJM0JYTVR4cWRTczFxakJZZEhzWEgrMDArbWNxayttNFNGVzFIYmg0MXUKNDRFbVYrYVJOaEVBK01HVGYwcDBrRGVJS1M0MVYwS2lxUXhkSEdNbk11bVlMb3p0SS9RMTFlV1dFRVQrRGoxQwp6clcvMmkrSVRWRnp1WUUxY01aMmpmQjNGUUl5SktCSWlnckMxYzB4WE5pQndhd2dtdnNLRzNBMzkza3JRU1VBClA2dHowOU5ZRlMyK0txV1NVZVRYUTJLUmVjd0FMN1B6WjRGcUpmaCs5M1VZZ29ma0cwRmZ6UVpjKzJIamdnVVYKTkJMbHp6VzlURDFVQWYxN2ozMEdWRlREYmh5a0NRZ08weWdFSUczTzlJMmcvMVRPRk15ak9zOU1nUkYzUktPdwovZ09LaWpoOUJyc2ViMUU1V0I5VDdrcXg4ck9MU2NPSHBYclJveUsxdmkrem9oa09mbE15dldzemlkUEtuYisvCkI0Z0g4V0ZyVVRmTmZUQjZMRDlIbEZOR216R3JYQUUxV3lVMjdTN2YvbDJveWhnVEI2QURTakpRYXRoeHZDOHIKZmc2Z1Y3bHYya21KclZvQWp6WmFVWlFqQnVyRnNZWjYwY3BvTzJnY0ZjUDg1d0QyNkN1SWc2ZkxTNm5YcE9aYwphdGxJdUxFODB3eFhPMCttbmRtb1lkNjZZd3RLZzBJQ2RlVi9remhpTDdKaTFCYUszMkw1ckVDeEZaOXZ3STdyCkl4dnRveUkxRlZpWHhRVmxRS1lSSlhVam5LbnV1U2RMMUJJZ2NnYkpHd3RwbG10MTA4WUthZUVoMFFrQ0F3RUEKQVFLQ0FnQkc4N0tVZStTUE0xM1RUbFlSQ3BDNEJaRGxYNG9zZVdsclJJOW5sSHQrSE5wazFWWStTNENTSTdYNgpvbGFZRmU0ZGFORE5SQjBYQXVCUWJjQk9BRTdLT2hpbGVEZVRCUy93b0ZsTVFRN0FhendLZFovb1F6V3l5ZEtECmxLNWhKdGNBOU5iU2RqSmdQRTdBNEdNQlVMd3J0SHV5TndGQ1RHYkg0U09EOVlKMFhJSHZ0NHl2eC8rVlRqZFkKTEFaMGVXQW5FdmwxWWg2eDMrNVR6WkU1b2RhMG40eVQrZVFRcHZjZWRvalg1SXhSYitaeE5PMFBMNXhNZ3B2NQpmZURnNDRuZkxyTDh4YUNGcmxUR3V5VlZKZ2JBRFIvQ0VxbG51S2cyZ0g3VC8yTStldElBcmszV1dDR3ZnNEs1CkRycnd4Z0t3TC91RGNJbDVMSndnZ0xaSzlQZ2N4VVo3ZnZMMEF6NzcvWUJYenRxMTgvdGNMU0tMbjhhNmF6YmUKeHF6U1BSd1FHc1FQU1pnU0tBV2J6RTBMSnN0ZktQejNpTU02aDlaQ25KTGJudGFpajgwbUZXQmNKOHY5UHFYWApGUTNmVjZrZXRIUVA1YUhDVEtCOE1uZzRvU0E1bDhuaUFlbllab1BVeDNKaXB4OWtPU1FkN0E4MXpIVjV5T1R2CmhOQlNRL0daZUJRMTV5NGlTSytHaklrcnczYXRML3BFUWhMdVRINUlSMHBqWW1UVWlickpWUzN0T2FScGFGQloKR2VBMm1xcU5Db1Z0K2pNcmlZcjBlVEVobWNnUUNJMGVFYk5DRG5ob3JtSDBWcklHNEpDQ0tKTFZGWmVrS05wZQpKOEFqN0hDS2pRMm4wUTM0RzhSY3FOaTlVeXhWNWxqTVF0ays3bkxEN1BqbXhMaTBvUUtDQVFFQTRVZFFvN051Cms1eHN4bDhVcSs4R1ZOV1NHb0x6TlkvdHBRZXBZYnpHRGFwUjRJa2kxTjU1WjAvek9zQzBlOEpXM053b3A0UTYKTlBrZ2EwOVNGVms2ZnhDWXB5RXVOSXJZZldCMGk0T0htTWhSRi8vRm1HVm83WWVFbVhDVTBXcnFCQ20zTC9vegpOY1RlcnVvelFiYlRvZUZ5Q0VUUDVlRDRPY28xUmtRVVBOU1E0SGpKWkVWWFAwTlgyQmJsamJTUGlzbEF1OGxDCnpYd25tNkMvYTdrWDZnanIzdERsR1c4YXg4OURuU01NRklhcDFCSzFtMWV3SG56M0xUbndGSTczSXhPRUZIalUKUUQ0N2JkOFNySEw5V21QOUpiOFpJK0hlTUsrR1JQc0pTSTJxaHdJcjdQYXJSVHIycWozSjRMeTF3K3AyaW9HSQpyL1BBYUNaOFhwKzFQd0tDQVFFQXRwMENFZHdnelRNVUljS1VqcVFBWUFzNWJxWmJMOFdVajZBR2h4SlA3U2UyCi9FdTdhaWRQcmg1SkkvdSs3RkVqZDMreFhneHB0RHMxOW11RmdmOWlkRjNRKzJaR2lKSHVpdnBSL3RkNVpxUnMKUkh5anJzTWQ1WTYxRFdzU3J3VlJUZTJjRTc1YUozelg4YXZ1M2VXVFVOR2dBTFQ2ZnJabVlON1VJbnhqTndyQQpVZkFoUDFTVUU5RjhVM0hLM0RZYmZkbXlCNlNHK2E5ZU5DZW5oeGU3Y1BmUktpbFZhYUVjSXMvL21KakJFNThBCkZHMEs1U3ZkNm1qcmhjT3ZhRDhEc2ZZMkl6NzRHMjAwa0xnTjdqYmxwQ3p1Ly9RVFBLaGlFRktidWhnMDNmODYKKzJLWEJaeWVXMUh4T2RiOTE5ZVdjVStVVllyVEljUUV5ZjZsK2JOL3R3S0NBUUVBdWdDbTdUSzJodnd0dDdCRApvaDR0elJlMWxWd3ZzVGJRRVdWOURlek9YZlFWdkYyZU84SWczUk5mRVZDUTlHb21UQjhmRmdrUUFqTDcrSDQ2Cm1OUGVmNUZWYVJEMVZINmJkeEdQeUsxbDVOam9VL2RqejR0VGttTkZNV2VLQ0VyTlEzaXAvdHdITWtzRlRjaWoKWDR1enUwSW9ZL2xrNmpuUTJlNUNCRzByaEhwQjBJVUtTMWNSVFhPdDhRWWVyTnk3Yyt6dEhOOTAzN0syQlVJNQpLcGxkekdkblVNYUxrbTl3M2k4Y2RYNjlkNmtrU2F6VTg1ajRHb1ExbGNyemxoWGdxYjV3WEhMVFZPUE5MODl5ClhKNW8zeHdWcFBmZXF3alA2c1RTQ054NDhzVzlXZEdLTVJJTm9aQ29uekY3SUtyUExSN0dsMStTV3l6WDNXYUIKWTZOY0F3S0NBUUJtM205cURDeldLeTN1RHFTTTdjbmdVTEpicUk2NWpIMnhvcDNLdlFBVlFrZ01POFVwZVZlagphQ0FmaXhMMElJandLaGlLT0VmYlpYZHlod05BUmRMNlpsYnhKNTRZRk16aHNUMDdaN3BWbmMzM2pwYk9QYys3Cm52WlN4cnhScDVjelpPU0ZJcmU2Z3ROS3FtWDJ6ZnA4am5tcHJFbG4wK3c4S1lvcW14TncwRGVpY0xqcDZnVTQKWE12Q1hkbSt6eVFSY3U2YzY0dTFYNXFibXJMK29OblFPMm15YkhKVy9KRFM4NFN5TzJxWVdQczhobWlhekdsSQpRUzVidmU0enRUdXBwbDY4NEIzM3BUNzFQeGxwMWJickV2elhabkRudkpyeFF2ZkNqeHhJNmh3WnZHSUNvVVY3CmY5OTVpNmlYVERUTlE5ejFpeXlBV3VHdndDbFRUbEJsQW9JQkFRQ0xrK3BLODRZSWx0Uk0wekdRNVZTQ2xTb1YKWnZHQ09UeUhhZlRSTUJLTUJDTzJoL1NwNDJhSGt2Y2FJZkFwakN3TXV6WmdlK1pRNW9wSTJmeDcyZmxTWThZNQpDU3pXKzVva3hBeTBLdUw5K3JpbFN0bGIxNFNZVDlqakduRVlSY3gvcHhBNmt0TUsyWHFIN0Z1d0x0d3FLUVlwCm0zeUxGZEgrQjNNaC9tK0lyeFV0QS8vQTVqVTJMeHk3czNlWCtQM1N2dzB2bkNCTEV1aDNIaVQvOWNEN1EyTHEKMXdibEszVWN6eTBhbWFBS2ZqK3QvK3paY2tYRk5vS1RiK21QdDJHT1l1TzlnVjI2N2Q0cVNCLzZOQkFNTWdQMApVejhkZzdkK1Q4TWVjcE04eUgzcW53Wm4weXZwZmRYQ1c5YTRSMnNZTW5FemwwR3ZOdnlXaytQWklYRncKLS0tLS1FTkQgUlNBIFBSSVZBVEUgS0VZLS0tLS0K'
-    '';
+      # Disable ACME and SSL for tests
+      services.nginx.virtualHosts.${domain-name} = {
+        enableACME = lib.mkForce false;
+        forceSSL = lib.mkForce false;
+      };
+
+      services.minio = {
+        rootCredentialsFile = "/etc/minio.env";
+      };
+
+      environment.etc."atticd.env".text = ''
+        ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64='LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBb0xMZDR4d0pjTkZVNjZjdjZSTHB1bWxBMjQzREdMdWNZellZNFJyYUJBbVBNbEhxCmhCWEtEQkhvV0l0dyt6b3BwWGVHdmdJM0JYTVR4cWRTczFxakJZZEhzWEgrMDArbWNxayttNFNGVzFIYmg0MXUKNDRFbVYrYVJOaEVBK01HVGYwcDBrRGVJS1M0MVYwS2lxUXhkSEdNbk11bVlMb3p0SS9RMTFlV1dFRVQrRGoxQwp6clcvMmkrSVRWRnp1WUUxY01aMmpmQjNGUUl5SktCSWlnckMxYzB4WE5pQndhd2dtdnNLRzNBMzkza3JRU1VBClA2dHowOU5ZRlMyK0txV1NVZVRYUTJLUmVjd0FMN1B6WjRGcUpmaCs5M1VZZ29ma0cwRmZ6UVpjKzJIamdnVVYKTkJMbHp6VzlURDFVQWYxN2ozMEdWRlREYmh5a0NRZ08weWdFSUczTzlJMmcvMVRPRk15ak9zOU1nUkYzUktPdwovZ09LaWpoOUJyc2ViMUU1V0I5VDdrcXg4ck9MU2NPSHBYclJveUsxdmkrem9oa09mbE15dldzemlkUEtuYisvCkI0Z0g4V0ZyVVRmTmZUQjZMRDlIbEZOR216R3JYQUUxV3lVMjdTN2YvbDJveWhnVEI2QURTakpRYXRoeHZDOHIKZmc2Z1Y3bHYya21KclZvQWp6WmFVWlFqQnVyRnNZWjYwY3BvTzJnY0ZjUDg1d0QyNkN1SWc2ZkxTNm5YcE9aYwphdGxJdUxFODB3eFhPMCttbmRtb1lkNjZZd3RLZzBJQ2RlVi9remhpTDdKaTFCYUszMkw1ckVDeEZaOXZ3STdyCkl4dnRveUkxRlZpWHhRVmxRS1lSSlhVam5LbnV1U2RMMUJJZ2NnYkpHd3RwbG10MTA4WUthZUVoMFFrQ0F3RUEKQVFLQ0FnQkc4N0tVZStTUE0xM1RUbFlSQ3BDNEJaRGxYNG9zZVdsclJJOW5sSHQrSE5wazFWWStTNENTSTdYNgpvbGFZRmU0ZGFORE5SQjBYQXVCUWJjQk9BRTdLT2hpbGVEZVRCUy93b0ZsTVFRN0FhendLZFovb1F6V3l5ZEtECmxLNWhKdGNBOU5iU2RqSmdQRTdBNEdNQlVMd3J0SHV5TndGQ1RHYkg0U09EOVlKMFhJSHZ0NHl2eC8rVlRqZFkKTEFaMGVXQW5FdmwxWWg2eDMrNVR6WkU1b2RhMG40eVQrZVFRcHZjZWRvalg1SXhSYitaeE5PMFBMNXhNZ3B2NQpmZURnNDRuZkxyTDh4YUNGcmxUR3V5VlZKZ2JBRFIvQ0VxbG51S2cyZ0g3VC8yTStldElBcmszV1dDR3ZnNEs1CkRycnd4Z0t3TC91RGNJbDVMSndnZ0xaSzlQZ2N4VVo3ZnZMMEF6NzcvWUJYenRxMTgvdGNMU0tMbjhhNmF6YmUKeHF6U1BSd1FHc1FQU1pnU0tBV2J6RTBMSnN0ZktQejNpTU02aDlaQ25KTGJudGFpajgwbUZXQmNKOHY5UHFYWApGUTNmVjZrZXRIUVA1YUhDVEtCOE1uZzRvU0E1bDhuaUFlbllab1BVeDNKaXB4OWtPU1FkN0E4MXpIVjV5T1R2CmhOQlNRL0daZUJRMTV5NGlTSytHaklrcnczYXRML3BFUWhMdVRINUlSMHBqWW1UVWlickpWUzN0T2FScGFGQloKR2VBMm1xcU5Db1Z0K2pNcmlZcjBlVEVobWNnUUNJMGVFYk5DRG5ob3JtSDBWcklHNEpDQ0tKTFZGWmVrS05wZQpKOEFqN0hDS2pRMm4wUTM0RzhSY3FOaTlVeXhWNWxqTVF0ays3bkxEN1BqbXhMaTBvUUtDQVFFQTRVZFFvN051Cms1eHN4bDhVcSs4R1ZOV1NHb0x6TlkvdHBRZXBZYnpHRGFwUjRJa2kxTjU1WjAvek9zQzBlOEpXM053b3A0UTYKTlBrZ2EwOVNGVms2ZnhDWXB5RXVOSXJZZldCMGk0T0htTWhSRi8vRm1HVm83WWVFbVhDVTBXcnFCQ20zTC9vegpOY1RlcnVvelFiYlRvZUZ5Q0VUUDVlRDRPY28xUmtRVVBOU1E0SGpKWkVWWFAwTlgyQmJsamJTUGlzbEF1OGxDCnpYd25tNkMvYTdrWDZnanIzdERsR1c4YXg4OURuU01NRklhcDFCSzFtMWV3SG56M0xUbndGSTczSXhPRUZIalUKUUQ0N2JkOFNySEw5V21QOUpiOFpJK0hlTUsrR1JQc0pTSTJxaHdJcjdQYXJSVHIycWozSjRMeTF3K3AyaW9HSQpyL1BBYUNaOFhwKzFQd0tDQVFFQXRwMENFZHdnelRNVUljS1VqcVFBWUFzNWJxWmJMOFdVajZBR2h4SlA3U2UyCi9FdTdhaWRQcmg1SkkvdSs3RkVqZDMreFhneHB0RHMxOW11RmdmOWlkRjNRKzJaR2lKSHVpdnBSL3RkNVpxUnMKUkh5anJzTWQ1WTYxRFdzU3J3VlJUZTJjRTc1YUozelg4YXZ1M2VXVFVOR2dBTFQ2ZnJabVlON1VJbnhqTndyQQpVZkFoUDFTVUU5RjhVM0hLM0RZYmZkbXlCNlNHK2E5ZU5DZW5oeGU3Y1BmUktpbFZhYUVjSXMvL21KakJFNThBCkZHMEs1U3ZkNm1qcmhjT3ZhRDhEc2ZZMkl6NzRHMjAwa0xnTjdqYmxwQ3p1Ly9RVFBLaGlFRktidWhnMDNmODYKKzJLWEJaeWVXMUh4T2RiOTE5ZVdjVStVVllyVEljUUV5ZjZsK2JOL3R3S0NBUUVBdWdDbTdUSzJodnd0dDdCRApvaDR0elJlMWxWd3ZzVGJRRVdWOURlek9YZlFWdkYyZU84SWczUk5mRVZDUTlHb21UQjhmRmdrUUFqTDcrSDQ2Cm1OUGVmNUZWYVJEMVZINmJkeEdQeUsxbDVOam9VL2RqejR0VGttTkZNV2VLQ0VyTlEzaXAvdHdITWtzRlRjaWoKWDR1enUwSW9ZL2xrNmpuUTJlNUNCRzByaEhwQjBJVUtTMWNSVFhPdDhRWWVyTnk3Yyt6dEhOOTAzN0syQlVJNQpLcGxkekdkblVNYUxrbTl3M2k4Y2RYNjlkNmtrU2F6VTg1ajRHb1ExbGNyemxoWGdxYjV3WEhMVFZPUE5MODl5ClhKNW8zeHdWcFBmZXF3alA2c1RTQ054NDhzVzlXZEdLTVJJTm9aQ29uekY3SUtyUExSN0dsMStTV3l6WDNXYUIKWTZOY0F3S0NBUUJtM205cURDeldLeTN1RHFTTTdjbmdVTEpicUk2NWpIMnhvcDNLdlFBVlFrZ01POFVwZVZlagphQ0FmaXhMMElJandLaGlLT0VmYlpYZHlod05BUmRMNlpsYnhKNTRZRk16aHNUMDdaN3BWbmMzM2pwYk9QYys3Cm52WlN4cnhScDVjelpPU0ZJcmU2Z3ROS3FtWDJ6ZnA4am5tcHJFbG4wK3c4S1lvcW14TncwRGVpY0xqcDZnVTQKWE12Q1hkbSt6eVFSY3U2YzY0dTFYNXFibXJMK29OblFPMm15YkhKVy9KRFM4NFN5TzJxWVdQczhobWlhekdsSQpRUzVidmU0enRUdXBwbDY4NEIzM3BUNzFQeGxwMWJickV2elhabkRudkpyeFF2ZkNqeHhJNmh3WnZHSUNvVVY3CmY5OTVpNmlYVERUTlE5ejFpeXlBV3VHdndDbFRUbEJsQW9JQkFRQ0xrK3BLODRZSWx0Uk0wekdRNVZTQ2xTb1YKWnZHQ09UeUhhZlRSTUJLTUJDTzJoL1NwNDJhSGt2Y2FJZkFwakN3TXV6WmdlK1pRNW9wSTJmeDcyZmxTWThZNQpDU3pXKzVva3hBeTBLdUw5K3JpbFN0bGIxNFNZVDlqakduRVlSY3gvcHhBNmt0TUsyWHFIN0Z1d0x0d3FLUVlwCm0zeUxGZEgrQjNNaC9tK0lyeFV0QS8vQTVqVTJMeHk3czNlWCtQM1N2dzB2bkNCTEV1aDNIaVQvOWNEN1EyTHEKMXdibEszVWN6eTBhbWFBS2ZqK3QvK3paY2tYRk5vS1RiK21QdDJHT1l1TzlnVjI2N2Q0cVNCLzZOQkFNTWdQMApVejhkZzdkK1Q4TWVjcE04eUgzcW53Wm4weXZwZmRYQ1c5YTRSMnNZTW5FemwwR3ZOdnlXaytQWklYRncKLS0tLS1FTkQgUlNBIFBSSVZBVEUgS0VZLS0tLS0K'
+      '';
+      environment.etc."minio.env".text = ''
+        MINIO_ROOT_USER=${accessKey}
+        MINIO_ROOT_PASSWORD=${secretKey}
+      '';
+    };
+    # During the test, `client1` will push `pkgs.hello` and `client2` will pull it
+    client1 = {
+      environment.systemPackages = [ pkgs.attic-client pkgs.hello ];
+    };
+    client2 = {
+      environment.systemPackages = [ pkgs.attic-client ];
+    };
   };
 
   testScript = ''
-    machine.start()
+    start_all()
 
-    machine.wait_for_unit("atticd.service")
-    machine.wait_for_open_port(8080)
+    server.wait_for_open_port(9000) # Wait for minio to start listening on the specified port
 
-    attic_html = machine.succeed("curl http://127.0.0.1:8080")
-    assert ("Attic Binary Cache" in attic_html)
+    server.wait_for_unit("atticd.service")
+    server.wait_for_open_port(8080)
+    client1.wait_until_succeeds("curl http://server", timeout=40)
+
+    root_token = server.succeed("atticd-atticadm make-token --sub 'e2e-root' --validity '1 month' --push '*' --pull '*' --delete '*' --create-cache '*' --destroy-cache '*' --configure-cache '*' --configure-cache-retention '*' </dev/null").strip()
+
+    client1.succeed(f"attic login --set-default root http://server {root_token}")
+    client2.succeed(f"attic login --set-default root http://server {root_token}")
+
+    with subtest("client1: Create cache"):
+      client1.succeed("attic cache create test")
+    with subtest("client1: Push pkgs.hello"):
+      hello_path = "${pkgs.hello.outPath}"
+      client1.succeed(f"attic push test {hello_path}")
+    with subtest("client2: Pull pkgs.hello"):
+      client2.succeed("attic use test")
+      client2.succeed(f"nix-store -r {hello_path}")
+      client2.succeed(f"{hello_path}/bin/hello")
   '';
 }

@@ -16,10 +16,10 @@
               modules = [ ../../modules/terranix ];
             }).config;
           in
-            {
-              BUCKET_NAME = terranix-cfg.terraform.backend.s3.bucket;
-              AWS_REGION = terranix-cfg.provider.aws.region;
-            };
+          {
+            BUCKET_NAME = terranix-cfg.terraform.backend.s3.bucket;
+            AWS_REGION = terranix-cfg.provider.aws.region;
+          };
         text = ''
           echo "Creating S3 bucket $BUCKET_NAME in region $AWS_REGION..."
 

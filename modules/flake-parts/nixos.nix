@@ -9,18 +9,39 @@ in
 {
   flake.nixosConfigurations.chutney = inputs.nixpkgs.lib.nixosSystem {
     inherit system;
-    specialArgs = { inherit inputs terranix-cfg; };
+    specialArgs = {
+      inherit inputs terranix-cfg;
+      domain-name = "cache.nixos.asia";
+    };
     modules = [
       "${inputs.nixpkgs}/nixos/maintainers/scripts/ec2/amazon-image.nix"
       ../../configuration.nix
       inputs.agenix.nixosModules.default
-      ../../modules/nixos
-      ({terranix-cfg, ...}: {
+      inputs.self.nixosModules.attic
+
+      # Overlays
+      ({
+        nixpkgs.overlays = [ inputs.self.overlays.default ];
+      })
+
+      # Autowire from terranix config
+      ({ terranix-cfg, ... }: {
         services.atticd.settings.storage = {
           bucket = terranix-cfg.resource.aws_s3_bucket.chutney_attic_cache.bucket;
           region = terranix-cfg.provider.aws.region;
           type = "s3";
         };
+      })
+
+      # Configure secrets
+      ({ config, ... }: {
+        age.secrets = {
+          "attic/env.age" = {
+            owner = config.services.atticd.user;
+            file = ../../secrets/attic/env.age;
+          };
+        };
+        services.atticd.environmentFile = config.age.secrets."attic/env.age".path;
       })
     ];
   };
