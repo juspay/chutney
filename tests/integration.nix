@@ -1,5 +1,7 @@
 # NixOS VM test to check if the attic server will run as expected, when deployed.
 #
+# Loosely based on https://github.com/zhaofengli/attic/blob/687dd7d607824edf11bf33e3d91038467e7fad43/integration-tests/basic/default.nix#L92C9-L117C9
+#
 # TODO:
 # - Microbenchmark Nginx's content caching
 # - Native integration test for `aarch64-linux` (See why in ../modules/flake-parts/integration-test.nix)
