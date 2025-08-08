@@ -15,7 +15,7 @@ in
     domain-name = "server";
   };
   nodes = {
-    server = { config, domain, ... }: {
+    server = { config, domain-name, ... }: {
       imports = [
         inputs.self.nixosModules.attic
         inputs.self.nixosModules.minio-attic
