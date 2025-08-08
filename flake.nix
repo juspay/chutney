@@ -29,15 +29,6 @@
   };
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import inputs.systems;
-    debug = true;
-    imports = [
-      ./modules/flake-parts/vpc-sg-cleanup.nix
-      ./modules/flake-parts/create-state-bucket.nix
-      ./modules/flake-parts/devshell.nix
-      ./modules/flake-parts/terranix.nix
-      ./modules/flake-parts/nixpkgs.nix
-      ./modules/flake-parts/nixos.nix
-      ./modules/flake-parts/integration-test.nix
-    ];
+    imports = with builtins; map (fn: ./modules/flake-parts/${fn}) (attrNames (readDir ./modules/flake-parts));
   };
 }
