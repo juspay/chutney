@@ -5,9 +5,9 @@
     specialArgs = { inherit inputs; };
     modules = [
       "${inputs.nixpkgs}/nixos/maintainers/scripts/ec2/amazon-image.nix"
-      ./configuration.nix
+      ../../configuration.nix
       inputs.agenix.nixosModules.default
-      ./modules/nixos
+      ../../modules/nixos
     ];
   };
 }
