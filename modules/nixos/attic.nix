@@ -1,19 +1,10 @@
-{ config, pkgs, ... }:
+{ config, pkgs, domain-name, ... }:
 let
-  domain = "cache.nixos.asia";
   port = 8080;
 in
 {
-  age.secrets = {
-    "attic/env.age" = {
-      owner = config.services.atticd.user;
-      file = ../../secrets/attic/env.age;
-    };
-  };
-
   services.atticd = {
     enable = true;
-    environmentFile = config.age.secrets."attic/env.age".path;
     # settings based on <https://github.com/zhaofengli/attic/blob/main/server/src/config-template.toml>
     settings = {
       listen = "127.0.0.1:${builtins.toString port}";
@@ -23,7 +14,7 @@ in
       # TODO: atticd.service must wait until postgresql.service is active
       database.url = "postgresql://${config.services.atticd.user}?host=/run/postgresql/";
 
-      api-endpoint = "https://${domain}/";
+      api-endpoint = "https://${domain-name}/";
 
       compression.type = "zstd";
 
@@ -89,7 +80,7 @@ in
     recommendedOptimisation = true;
     recommendedProxySettings = true;
     clientMaxBodySize = "0"; # Remove size restrictions
-    virtualHosts.${domain} = {
+    virtualHosts.${domain-name} = {
       enableACME = true;
       forceSSL = true;
       locations = {
