@@ -25,13 +25,6 @@ in
 
       api-endpoint = "https://${domain}/";
 
-      storage = {
-        type = "s3";
-        region = "ap-south-1";
-        # TODO: autowire from terranix config
-        bucket = "chutney-attic-cache-1";
-      };
-
       compression.type = "zstd";
 
       # The maximum size of the upload info JSON, in bytes.

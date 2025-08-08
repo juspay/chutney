@@ -1,17 +1,25 @@
 # A script that creates a versioned S3 bucket for terraform to store state in
+{ inputs, ... }:
 {
-  perSystem = { pkgs, ... }: {
+  perSystem = { pkgs, config, system, ... }: {
     # Based on https://gitlab.com/initech-project/main-codebase/-/blob/main/lib/terranix/default.nix?ref_type=heads#L98-128
     apps.create-state-bucket = {
       type = "app";
       program = pkgs.writeShellApplication {
         name = "create-state-bucket";
         runtimeInputs = [ pkgs.awscli2 ];
-        runtimeEnv = {
-          # TODO: autowire from terranix configuration
-          BUCKET_NAME = "chutney-tf-state-1";
-          AWS_REGION = "ap-south-1";
-        };
+        runtimeEnv =
+          let
+            # TODO: Export the `terranixConfigurationAst` in `config.terranix.terranixConfigurations.default.result`
+            terranix-cfg = (inputs.terranix.lib.terranixConfigurationAst {
+              inherit system;
+              modules = [ ../../modules/terranix ];
+            }).config;
+          in
+            {
+              BUCKET_NAME = terranix-cfg.terraform.backend.s3.bucket;
+              AWS_REGION = terranix-cfg.provider.aws.region;
+            };
         text = ''
           echo "Creating S3 bucket $BUCKET_NAME in region $AWS_REGION..."
 
