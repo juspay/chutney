@@ -6,8 +6,6 @@
 
 - Rename `backend.s3.bucket` and `resource.aws_s3_bucket.chutney_attic_cache.bucket` in terranix config, to not conflict with existing buckets in the same region.
   - We went with `chutney-tf-state-1` and `chutney-attic-cache-1` respectively.
-- Replace `services.atticd.settings.storage.bucket`, in attic's nixosModule, to match `resource.aws_s3_bucket.chutney_attic_cache.bucket` (Note: This step will be redundant once `services.atticd.settings.storage.bucket` is autowired from the terranix config)
-- Replace `flake.outputs.apps.create-state-bucket.program.runtimeEnv.BUCKET_NAME` to match `backend.s3.bucket`. (Note: This step, like the previous one will also be redundant after autowiring)
 - `rm -rf .terraform` to remove the old cached state.
 - Follow [Getting Started](/README.md#getting-started) from Step 1 to 6 on the new account.
 - `ssh-keyscan <new-public-ip>` and use the output to replace `chutney` public key in [Secrets](/secrets/secrets.nix)
