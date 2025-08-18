@@ -1,11 +1,11 @@
 # chutney
 
-> [!NOTE]
+> [!WARNING]
 > **Status: 🚧 Work in Progress 🚧**
 >
-> This project might undergo changes as we scale the cache to cover over 1000 users at Juspay.
+> This project might undergo changes as we scale the cache to cover 1000+ users at Juspay.
 >
-> Track https://github.com/juspay/chutney/issues/17 for reliability issues.
+> See https://github.com/juspay/chutney/issues/17 for current status on reliability.
 
 `chutney` provides a NixOS + [terranix](https://terranix.org/) configuration to deploy a reliable Nix binary cache server, powered by [attic](https://docs.attic.rs/).
 
