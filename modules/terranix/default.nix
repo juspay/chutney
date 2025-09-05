@@ -82,7 +82,7 @@ in
     key_name = config.resource.aws_key_pair.deployer.key_name;
     iam_instance_profile = "\${aws_iam_instance_profile.chutney_profile.id}";
     root_block_device = {
-      volume_size = 50; # In GB
+      volume_size = 100; # In GB
       volume_type = "gp3";
       iops = 3000;
     };
