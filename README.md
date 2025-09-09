@@ -10,6 +10,7 @@
 `chutney` provides a NixOS + [terranix](https://terranix.org/) configuration to deploy a reliable Nix binary cache server, powered by [attic](https://docs.attic.rs/).
 
 - [Getting Started](#getting-started)
+- [Limitations](#limitations)
 - [Guide](#guide)
   - [Cache Creation](#create-cache)
   - [Secrets](#secrets)
@@ -23,6 +24,10 @@
 By default, chutney deploys its infrastructure on AWS. To get started, follow the [AWS guide](/docs/AWS.md).
 
 If you are not using AWS, you can use the standalone NixOS modules, which are decoupled from the terranix configuration. See the [NixOS Modules guide](/docs/NIXOS_MODULES.md).
+
+## Limitations
+
+- [Database storage size trade-off](https://github.com/juspay/chutney/issues/48)
 
 ## Guide
 
