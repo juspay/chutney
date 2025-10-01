@@ -35,7 +35,7 @@ in
         #
         # If 0, chunking is disabled entirely for newly-uploaded NARs.
         # If 1, all NARs are chunked.
-	#
+        #
         # (threshold before disabling chunking) nar-size-threshold = 64 * 1024; # 64 KiB
         nar-size-threshold = 0;
 
