@@ -28,7 +28,7 @@ If you are not using AWS, you can use the standalone NixOS modules, which are de
 
 ## Limitations
 
-- [Database storage size trade-off](https://github.com/juspay/chutney/issues/48)
+- [Unbounded DB and S3 growth](https://github.com/juspay/chutney/issues/52)
 
 ## Operational Decisions
 
