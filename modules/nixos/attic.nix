@@ -37,7 +37,7 @@ in
         # If 1, all NARs are chunked.
         #
         # (threshold before disabling chunking) nar-size-threshold = 64 * 1024; # 64 KiB
-        nar-size-threshold = 0;
+        nar-size-threshold = 0; # Chunking disabled, see https://github.com/juspay/chutney/issues/48
 
         # The preferred minimum size of a chunk, in bytes
         min-size = 16 * 1024; # 16 KiB

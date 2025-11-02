@@ -11,6 +11,7 @@
 
 - [Getting Started](#getting-started)
 - [Limitations](#limitations)
+- [Operational Decisions](#operational-decisions)
 - [Guide](#guide)
   - [Cache Creation](#create-cache)
   - [Secrets](#secrets)
@@ -28,6 +29,12 @@ If you are not using AWS, you can use the standalone NixOS modules, which are de
 ## Limitations
 
 - [Database storage size trade-off](https://github.com/juspay/chutney/issues/48)
+
+## Operational Decisions
+
+### Disable Chunking
+
+Chunking saves storage space but costs significantly more due to S3 PUT request pricing. Disabling chunking **saves ~95% on S3 PUT cost** (see https://github.com/juspay/chutney/issues/48#issuecomment-3478249583). One might argue that the storage cost might bite us in the long run, but we don't have to worry about that given we solve https://github.com/juspay/chutney/issues/52.
 
 ## Guide
 
