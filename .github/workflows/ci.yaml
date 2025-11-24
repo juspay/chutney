@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: attic login
-        run: attic login chutney https://cache.nixos-asia.org ${{ secrets.ATTIC_LOGIN_TOKEN }}
+        run: attic login chutney https://cache.nixos.asia ${{ secrets.ATTIC_LOGIN_TOKEN }}
       - name: om show
         run: om show .
       - name: om ci
