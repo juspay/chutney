@@ -11,7 +11,7 @@ in
     inherit system;
     specialArgs = {
       inherit inputs terranix-cfg;
-      domain-name = "cache.nixos-asia.org";
+      domain-name = "cache.nixos.asia";
     };
     modules = [
       "${inputs.nixpkgs}/nixos/maintainers/scripts/ec2/amazon-image.nix"
