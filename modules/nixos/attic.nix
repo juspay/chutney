@@ -110,6 +110,36 @@ in
       };
     };
 
+    # Keep the new FQDN for some internal projects to keep functioning, until they swtich back
+    # TODO: Follow-up with the internal team and drop support for this domain
+    virtualHosts."cache.nixos-asia.org" = {
+      enableACME = true;
+      forceSSL = true;
+      locations = {
+        # Routes used to interact with the server using `attic-client`
+        #
+        # If you are curious, you can find the routes defined [here](https://github.com/zhaofengli/attic/blob/24fad0622fc9404c69e83bab7738359c5be4988e/server/src/api/v1/mod.rs#L10-L37).
+        "~ ^/_api/".proxyPass = "http://127.0.0.1:${builtins.toString port}";
+        # Matches all other routes. As of writing this article, these are the routes used by `nix` to fetch `nix-cache-info`, `nar` and `narinfo`.
+        "/" = {
+          proxyPass = "http://127.0.0.1:${builtins.toString port}";
+          extraConfig = ''
+            # Enable caching contents (only `GET` and `HEAD` methods by default)
+            #
+            # Benchmarked with (~7MB NAR file):
+            # ```sh
+            # nix shell nixpkgs#hyperfine nixpkgs#curl
+            # hyperfine --warmup 2 'curl https://cache.nixos.asia/oss/nar/5l80xj32bp412jgj90m6r3qc1pjljmcj.nar --output /tmp/omnix'
+            # ```
+            proxy_cache attic;
+            proxy_cache_valid  200 301 302  7d;
+            proxy_cache_valid  404  1m;
+            proxy_cache_min_uses 2; # Cache if requested atleast twice
+          '';
+        };
+      };
+    };
+
     # Content caching to avoid unchunking on frequently pulled paths
     #
     # Note: Having only this block isn't enough to cache, you should also add location specific directives (See `virtualHosts.<name>.locations."/".extraConfig`).
