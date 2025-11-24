@@ -42,7 +42,7 @@ Chunking saves storage space but costs significantly more due to S3 PUT request 
 
 Login to attic using the root-token for admin related work:
 ```
-cd secrets && nix run nixpkgs#attic-client -- login root https://cache.nixos.asia $(agenix -d attic/root-token.age)
+cd secrets && nix run nixpkgs#attic-client -- login root https://cache.nixos-asia.org $(agenix -d attic/root-token.age)
 ```
 
 ### Create cache

@@ -99,7 +99,7 @@ in
             # Benchmarked with (~7MB NAR file):
             # ```sh
             # nix shell nixpkgs#hyperfine nixpkgs#curl
-            # hyperfine --warmup 2 'curl https://cache.nixos.asia/oss/nar/5l80xj32bp412jgj90m6r3qc1pjljmcj.nar --output /tmp/omnix'
+            # hyperfine --warmup 2 'curl https://cache.nixos-asia.org/oss/nar/5l80xj32bp412jgj90m6r3qc1pjljmcj.nar --output /tmp/omnix'
             # ```
             proxy_cache attic;
             proxy_cache_valid  200 301 302  7d;
