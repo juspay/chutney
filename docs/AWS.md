@@ -16,7 +16,7 @@
     atticd-atticadm make-token --sub 'e2e-root' --validity '2y' --push '*' --pull '*' --delete '*' --create-cache '*' --destroy-cache '*' --configure-cache '*' --configure-cache-retention '*'
     ```
 1. Delete the existing `./secrets/attic/root-token.age` and follow [Secrets](#secrets) to add the token generated before
-1. Follow [Administrate cache](#administrate-cache) to manage the cache using `attic-client`
+1. Follow [Administrate cache](../README.md#administrate-cache) to manage the cache using `attic-client`
 1. Follow [cache creation](https://docs.attic.rs/tutorial.html#cache-creation) guide from attic.
 1. Follow the guide from attic to [push](https://docs.attic.rs/tutorial.html#pushing) and [pull](https://docs.attic.rs/tutorial.html#pulling) to/from the cache.
 
