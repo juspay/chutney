@@ -53,6 +53,12 @@ in
         description = "Allow SSH";
         from_port = 22;
         to_port = 22;
+        cidr_blocks = [
+          "3.7.40.245/32"
+          "13.232.74.226/32"
+          "65.1.52.128/32"
+        ];
+        ipv6_cidr_blocks = [ ]; # Override the inherited public IPv6 access.
       }
     ];
 
