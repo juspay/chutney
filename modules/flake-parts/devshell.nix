@@ -6,6 +6,8 @@
       ];
       packages = with pkgs; [
         just
+        nixos-rebuild
+        awscli2
         inputs'.agenix.packages.default
         fd
         fzf
